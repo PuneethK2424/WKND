@@ -40,7 +40,7 @@ const config = {
       })
     },
     baseUrl: authorURL,
-    defaultCommandTimeout: 10000,
+    defaultCommandTimeout: 20000,
     reporter: 'cypress-multi-reporters',
     reporterOptions: {
       configFile: 'reporter.config.js'

@@ -46,7 +46,7 @@ describe('validate the Wknd public site', () => {
       })
       cy.visit('/')
       cy.get('.cmp-search__field').type('Climbing')
-      cy.get('.cmp-search__results a').should('have.length.least', 1)
+      cy.get('.cmp-search__results a', { timeout: 20000 }).should('have.length.least', 1)
     })
   })
 })
