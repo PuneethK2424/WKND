@@ -7,8 +7,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
-import org.apache.sling.servlets.annotations.SlingServletPaths;
+
+import org.apache.sling.servlets.annotations.SlingServletResourceTypes;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -20,10 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component(service = Servlet.class)
-@SlingServletPaths(value = "/bin/aemascs/addVideoToPlaylist")
-public class AddVideoToPlaylistServlet extends SlingAllMethodsServlet {
+@SlingServletResourceTypes(resourceTypes = "sling/servlet/default", selectors = "add-video", extensions = "json", methods = HttpConstants.METHOD_POST)
+public class AddVideoServlet extends SlingAllMethodsServlet {
 
-    private static final Logger log = LoggerFactory.getLogger(AddVideoToPlaylistServlet.class);
+    private static final Logger log = LoggerFactory.getLogger(AddVideoServlet.class);
 
     @Reference
     private VideoPlaylistService videoPlaylistService;
@@ -63,7 +65,7 @@ public class AddVideoToPlaylistServlet extends SlingAllMethodsServlet {
             }
 
             // Call the service and get the full JsonNode response
-            responseJson = videoPlaylistService.saveVideoInPlaylists(videoUrl, playlistNames, request.getResourceResolver());
+            responseJson = videoPlaylistService.saveVideo(videoUrl, playlistNames, request.getResourceResolver());
 
         } catch (Exception e) {
             log.error("Exception while processing the request", e);
@@ -75,4 +77,3 @@ public class AddVideoToPlaylistServlet extends SlingAllMethodsServlet {
         objectMapper.writeValue(response.getWriter(), responseJson);
     }
 }
-

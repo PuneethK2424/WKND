@@ -1,192 +1,181 @@
-<sly data-sly-use.playlistModel="com.adobe.aem.guides.wknd.core.models.AbbviePlaylistModel" />
+<sly data-sly-use.playlistModel="com.aemascs.core.models.AbbviePlaylistModel"/>
 <div class="main">
- <div id="error-popup" class="error-hidden"></div>
-    <div id="message-popup" class="message-hidden"></div>
-    
-<div class="centered-container">
-    <div class="headings">
-        <div class="header1">${playlistModel.componentTitle}</div>
-        <div class="description">
-            ${playlistModel.componentDescription}
-        </div>
-    </div>
-   
-        <sly data-sly-test="${!playlistModel.validateUser}">
-
-            <div class="invalid-user"><span>!</span> This section is restricted to [type of users].
-
+    <div class="centered-container">
+        <div class="headings">
+            <div class="header1">${playlistModel.componentTitle}</div>
+            <div class="description">
+                ${playlistModel.componentDescription}
             </div>
-
-        </sly>
-         <sly data-sly-test="${playlistModel.validateUser}">
-         
-    <div class="tabs">
-        <button class="tab active" data-tab="content1">Media</button>
-        <button class="tab" data-tab="content2">My Playlists</button>
-    </div>
-
-    <div class="main-parent">
-        <div class="left-div" id="categorySection">
-
-
-            <sly data-sly-test="${!playlistModel.categories || playlistModel.categories.size == 0}">
-                <div class="no-categories">This section is restricted to users.</div>
-            </sly>
-
-            <sly data-sly-test="${playlistModel.categories}">
-
-                <div class="categories">Categories:</div>
-                <sly data-sly-list.category="${playlistModel.categories}">
-                    <div class="category-item" data-category-index="${categoryList.index}">
-                        ${category.categoryName}
-                    </div>
-                </sly>
-            </sly>
-
         </div>
-        <!-- Mobile view -->
-        <fieldset class="mobile-category-dropdown" id="mobileCategoryDropdown">
-            <legend>Categories</legend>
-            <select id="mobileCategorySelect">
-                <sly data-sly-list.category="${playlistModel.categories}">
-                    <option value="${categoryList.index}">${category.categoryName}</option>
-                </sly>
-            </select>
-        </fieldset>
-
-        <div class="right-div">
-            <div id="content1" class="content-div active"></div>
-            <div id="content2" class="content-div">
-                <div class="playlist-item">
+        <sly data-sly-test="${!playlistModel.validateUser}">
+            <div class="invalid-user"><span>!</span> This section is restricted to [type of users].
+            </div>
+        </sly>
+        <sly data-sly-test="${playlistModel.validateUser}">
+            <div class="tabs">
+                <button class="tab active" data-tab="content1">Media</button>
+                <button class="tab" data-tab="content2">My Playlists</button>
+            </div>
+            <div class="main-parent">
+                <div class="left-div" id="categorySection">
+                    <sly data-sly-test="${!playlistModel.categories || playlistModel.categories.size == 0}">
+                        <div class="no-categories">This section is restricted to users.</div>
+                    </sly>
+                    <sly data-sly-test="${playlistModel.categories}">
+                        <div class="categories">Categories:</div>
+                        <sly data-sly-list.category="${playlistModel.categories}">
+                            <div class="category-item" data-category-index="${categoryList.index}">
+                                ${category.categoryName}
+                            </div>
+                        </sly>
+                    </sly>
+                </div>
+                <!-- Mobile view -->
+                <fieldset class="mobile-category-dropdown" id="mobileCategoryDropdown">
+                    <legend>Categories</legend>
+                    <select id="mobileCategorySelect">
+                        <sly data-sly-list.category="${playlistModel.categories}">
+                            <option value="${categoryList.index}">${category.categoryName}</option>
+                        </sly>
+                    </select>
+                </fieldset>
+                <div class="right-div">
+                    <div id="content1" class="content-div active"></div>
+                    <div id="content2" class="content-div"></div>
                 </div>
             </div>
-        </div>
-    </div> 
-</div>
-
-    <!-- Hidden Data Structure for JS -->
-    <div id="playlist-data" style="display: none;">
-        <sly data-sly-list.category="${playlistModel.categories}">
-            <div class="playlist" data-category="${category.categoryName @ context='attribute'}"
-                 data-index="${categoryList.index}">
-                <sly data-sly-list.question="${category.questions}">
-                    <div class="question" data-question="${question.question @ context='attribute'}"
-                         data-index="${questionList.index}">
-                        <sly data-sly-list.video="${question.videos}">
-                            <div class="video" data-video="${video.video @ context='attribute'}"></div>
-                        </sly>
-                    </div>
-                </sly>
-            </div>
         </sly>
-    </div>
-</div>
-
-
-<!-- Video Dialog -->
-<div id="videoDialog" class="video-dialog" style="display: none;">
-    <div class="video-dialog-content">
-        <h3 id="dialogTitle"> Add to playlist</h3>
-        <p id="dialogDescription"></p>
-        <!-- New container for dynamic checkboxes -->
-        <div id="checkboxContainer" class="checkbox-container">
-        </div>
-        <div class="create-new"><span class="create-playlist">Create new playlist</span> <span
-                class="create-plus">+</span></div>
-        <div class="dialog-buttons">
-            <button id="cancelDialog">Cancel</button>
-            <button id="saveCheckboxes">Save</button>
+        <!-- Hidden Data Structure for JS -->
+        <div id="playlist-data" style="display: none;">
+            <sly data-sly-list.category="${playlistModel.categories}">
+                <div class="playlist" data-category="${category.categoryName @ context='attribute'}"
+                     data-index="${categoryList.index}">
+                    <sly data-sly-list.question="${category.questions}">
+                        <div class="question" data-question="${question.question @ context='attribute'}"
+                             data-index="${questionList.index}">
+                            <sly data-sly-list.video="${question.videos}">
+                                <div class="video" data-video="${video.video @ context='attribute'}"></div>
+                            </sly>
+                        </div>
+                    </sly>
+                </div>
+            </sly>
         </div>
     </div>
-</div>
-
-<!-- Create New Playlist Dialog -->
-<div id="newPlaylistDialog" class="new-playlist-dialog" style="display: none;">
-    <div class="new-playlist-content">
-        <h3 class="create-text">Create New Playlist</h3>
-        <input type="text" id="newPlaylistName" placeholder="Enter playlist name" />
-        <div class="dialog-buttons">
-            <button id="cancelNewPlaylist">Cancel</button>
-            <button id="saveNewPlaylist">Save</button>
+    <!-- Video Dialog -->
+    <div id="videoDialog" class="video-dialog" style="display: none;">
+        <div class="video-dialog-content">
+            <h3 id="dialogTitle"> Add to playlist</h3>
+            <p id="dialogDescription"></p>
+            <!-- New container for dynamic checkboxes -->
+            <div id="checkboxContainer" class="checkbox-container">
+            </div>
+            <div class="create-new"><span class="create-playlist">Create new playlist</span> <span
+                    class="create-plus">+</span></div>
+            <div class="dialog-buttons">
+                <button id="cancelDialog">Cancel</button>
+                <button id="saveCheckboxes">Save</button>
+            </div>
         </div>
     </div>
-</div>
-
-
-<!-- ReName Dialog -->
-<div id="RenameDialog" class="rename-dialog" style="display:none;">
-    <div class="rename-content">
-        <h3 class="rename-text">Rename Playlist Name</h3>
-        <input type="text" id="renamePlaylistName" placeholder="Enter playlist name" />
-        <div class="dialog-buttons">
-            <button id="renamePlaylistCancel">Cancel</button>
-            <button id="saveRenamePlaylist">Save</button>
+    <!-- Create New Playlist Dialog -->
+    <div id="newPlaylistDialog" class="new-playlist-dialog" style="display: none;">
+        <div class="new-playlist-content">
+            <h3 class="create-text">Create New Playlist</h3>
+            <input type="text" id="newPlaylistName" placeholder="Enter playlist name"/>
+            <div class="dialog-buttons">
+                <button id="cancelNewPlaylist">Cancel</button>
+                <button id="saveNewPlaylist">Save</button>
+            </div>
         </div>
     </div>
-</div>
-
-
-<!--delete dialog-->
-
-
-<div id="delete-modal" class="modal hidden">
-<div class="new-playlist-content">
-<h2 class="modal-title">Delete item from playlist</h2>
-<p id="delete-message">if you delete it, it will no longer be part of playlist</p>
-<div class="dialog-buttons">
-<button id="cancel-delete">Don't Delete</button>
-<button id="confirm-delete">Delete</button>
-</div>
-</div>
-</div>
-
-
-
-<!--playList dialog for render videos on click of playlist--start-->
-<!-- video rendering dialog for the AEM playlist -->
-
-<div class="main-playlist-container" >
-
-
-  <!-- Left Side: Playlist Items -->
-  <div class="playlist-sidebar">
-   
-   <nav id="dynamicBreadcrumb" class="breadcrumb-nav">
-    <span class="breadcrumb" id="breadcrumb-home">Home</span>
-    <span class="breadcrumb-separator">›</span>
-    <span class="breadcrumb">Default</span>
-    <span class="breadcrumb-separator">›</span>
-    <span class="breadcrumb current" id="breadcrumb-current">Current</span>
-  </nav>
-  
-    <div class="playlist-header">
-     <div> <div class="head-play" ><h2>Vital | Cardiology Essentials</h2><h2>⁞</h2></div><span class="total-count">6 items | 6:31:23</span></div>
-     
+    <!-- ReName Dialog -->
+    <div id="RenameDialog" class="rename-dialog" style="display:none;">
+        <div class="rename-content">
+            <h3 class="rename-text">Rename Playlist Name</h3>
+            <input type="text" id="renamePlaylistName" placeholder="Enter playlist name"/>
+            <div class="dialog-buttons">
+                <button id="renamePlaylistCancel">Cancel</button>
+                <button id="saveRenamePlaylist">Save</button>
+            </div>
+        </div>
     </div>
-      <div class="auto-div" ><span class="video-count" >current </span>  
-   <span class="auto-play-logic">
-  	<label>
-    <input type="checkbox" id="autoplay-switch" />
-    <span class="custom-slider"></span>
-  	</label>
- 	 <label for="autoplay-switch">Automaticaly play</label>
-	</span>
-
-     </div>
-    <div class="playlist-items">
-      <!-- JS will render video list here -->
+    <!--delete dialog-->
+    <div id="delete-model" class="model hidden">
+        <div class="new-playlist-content">
+            <h2 class="model-title">Delete playlist</h2>
+            <p id="delete-message">if you delete it, it will no longer be part of playlist</p>
+            <div class="dialog-buttons">
+                <button id="cancel-delete">Don't Delete</button>
+                <button id="confirm-delete">Delete</button>
+            </div>
+        </div>
     </div>
-  </div>
-
-  <!-- Right Side: Main Video Player -->
-  <div class="playlist-player">
-    <div class="video-frame">
-      <!-- JS inserts <img> or <video> here -->
+    <!--playList dialog for render videos on click of playlist--start-->
+    <!-- video rendering dialog for the AEM playlist -->
+    <div class="main-playlist-container" style="display:none;">
+        <!-- Left Side: Playlist Items -->
+        <div class="playlist-sidebar">
+            <nav id="dynamicBreadcrumb" class="breadcrumb-nav">
+                <span class="breadcrumb" id="breadcrumb-home">Home</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb">Default</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb current" id="breadcrumb-current">Current</span>
+            </nav>
+            <div class="playlist-header">
+                <div>
+                    <div class="head-play">
+                        <h2 id="play-text">Vital | Cardiology Essentials</h2>
+                        <h2 id="menu-toggle" class="menu-icon">⁞</h2>
+                        <div id="menu" class="dropdown-menu hidden">
+                            <div class="menu-item" data-action="delete">Delete</div>
+                            <div class="menu-item" data-action="rename">Rename</div>
+                            <div class="menu-item" data-action="changeOrder">Change Order</div>
+                        </div>
+                    </div>
+                    <span class="total-count">6 items | 6:31:23</span>
+                </div>
+            </div>
+            <div class="auto-div"><span class="video-count">current </span>
+                <span class="auto-play-logic">
+            <label>
+            <input type="checkbox" id="autoplay-switch"/>
+            <span class="custom-slider"></span>
+            </label>
+            <label for="autoplay-switch">Automaticaly play</label>
+            </span>
+            </div>
+            <div class="playlist-items">
+                <!-- JS will render video list here -->
+            </div>
+        </div>
+        <!-- Right Side: Main Video Player -->
+        <div class="playlist-player">
+            <div class="video-frame">
+                <!-- JS inserts <img> or <video> here -->
+            </div>
+            <div class="video-details">
+                <!-- Title and description -->
+            </div>
+        </div>
     </div>
-    <div class="video-details">
-      <!-- Title and description -->
+    <div id="snackBar" class="snack-bar">
+        <span class="snack-message"></span>
+        <span class="snack-close">×</span>
     </div>
-  </div>
+    <!-- change-order-dialog-start -->
+    <div id="changeOrderDialog" class="change-dialog" style="display:none;">
+        <div class="change-content">
+            <h3 class="change-text">Change order</h3>
+            <div class="change-list">
+                js code to render here
+            </div>
+            <div class="dialog-buttons">
+                <button id="changePlaylistCancel">Cancel</button>
+                <button id="saveChangePlaylist">Save new order</button>
+            </div>
+        </div>
+    </div>
+    <!-- change-order-dialog-end ---->
 </div>
-
-<!--playList dialog for render videos on click of playlist--end-->

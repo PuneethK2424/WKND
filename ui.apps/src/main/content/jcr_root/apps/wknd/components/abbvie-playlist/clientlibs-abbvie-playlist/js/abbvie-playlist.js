@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
    // ================================
    // INITIAL SETUP AND STATE
    // ================================
@@ -15,10 +15,12 @@ document.addEventListener('DOMContentLoaded', function() {
          categories: {}
       }
    };
+   const servletParentPath = '/sling/servlet/default'
    let currentButton = null;
    let currentApi = null;
    let oldName;
-   let mainresponse;
+   let mainResponse;
+   let latestPlayListResponse;
    const checkboxContainer = document.getElementById('checkboxContainer');
    const saveBtn = document.getElementById('saveCheckboxes');
    const cancelBtn = document.getElementById('cancelDialog');
@@ -36,30 +38,54 @@ document.addEventListener('DOMContentLoaded', function() {
    const renamePlaylistInput = document.getElementById('renamePlaylistName');
    const noPlaylists = document.getElementById('no-playlists-message');
 
-   //==================pop up msg====
-   function showPopup(message) {
-      const popup = document.getElementById('message-popup');
-      popup.textContent = ' ' + message;
-      popup.classList.remove('message-hidden');
-      popup.classList.add('show');
+   const menuToggle = document.getElementById('menu-toggle');
+   const menu = document.getElementById('menu');
 
-      setTimeout(() => {
-         popup.classList.remove('show');
-         setTimeout(() => popup.classList.add('message-hidden'), 300);
-      }, 5000);
+   const changePlaylistCancel = document.getElementById('changePlaylistCancel');
+   const saveChangePlaylist = document.getElementById('saveChangePlaylist');
+   let playListName;
+   let selectedPlaylistName = null;
+   let changeOrderVideoOrgList;
+   let videoList;
+   let totalVideos;
+   let currentVideoIndex;
+   //=====snack bar-code-start======================================
+   let snackBarTimeout;
+   let closeListenerAttached = false;
+
+   function snackBarMessage(message, type = 'success') {
+      const snackBar = document.getElementById("snackBar");
+      const messageSpan = snackBar.querySelector(".snack-message");
+      const closeBtn = snackBar.querySelector(".snack-close");
+
+      messageSpan.textContent = message;
+
+      snackBar.classList.remove("success", "error");
+      snackBar.classList.add(type === 'error' ? 'error' : 'success');
+
+      snackBar.classList.add("show");
+      snackBar.style.display = "block";
+      clearTimeout(snackBarTimeout);
+      snackBarTimeout = setTimeout(() => {
+         closeSnackBar();
+      }, 3000);
+      if (!closeListenerAttached && closeBtn) {
+         closeBtn.addEventListener("click", () => {
+            closeSnackBar();
+         });
+         closeListenerAttached = true;
+      }
    }
 
-   function showErrorPopup(message) {
-      const popup = document.getElementById('error-popup');
-      popup.textContent = ' ' + message;
-      popup.classList.remove('error-hidden');
-      popup.classList.add('show');
-
+   function closeSnackBar() {
+      const snackBar = document.getElementById("snackBar");
+      snackBar.classList.remove("show");
       setTimeout(() => {
-         popup.classList.remove('show');
-         setTimeout(() => popup.classList.add('error-hidden'), 300);
-      }, 5000);
+         snackBar.style.display = "none";
+      }, 400);
    }
+
+   //======snack bar-code-end========================================
 
    // ================================
    // HELPER FUNCTIONS
@@ -86,6 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('videoDialog').style.display = 'none';
       newPlaylistInput.value = '';
       newPlaylistDialog.style.display = 'flex';
+      document.body.classList.add('dialog-open');
    }
 
    function renderCheckboxes(options) {
@@ -101,6 +128,12 @@ document.addEventListener('DOMContentLoaded', function() {
       });
    }
 
+   // Close dropdowns when clicking outside
+   document.addEventListener('click', () => {
+      document.querySelectorAll('.dropdown').forEach(dropdown => {
+         dropdown.classList.add('hidden');
+      });
+   });
    // ================================
    // DATA CONSTRUCTION
    // ================================
@@ -126,11 +159,9 @@ document.addEventListener('DOMContentLoaded', function() {
                videoTitle: videoId || 'Untitled',
                videoDescription: 'No description provided',
                videoUrl: videoId ?
-                  `https://www.youtube.com/embed/${videoId}` :
-                  videoUrl,
+                  `https://www.youtube.com/embed/${videoId}` : videoUrl,
                videoThumbnail: videoId ?
-                  `https://img.youtube.com/vi/${videoId}/0.jpg` :
-                  '',
+                  `https://img.youtube.com/vi/${videoId}/0.jpg` : '',
             });
          });
 
@@ -143,6 +174,29 @@ document.addEventListener('DOMContentLoaded', function() {
       staticApiResponse.media.categories[pIndex] = category;
    });
 
+   // Populate mobile category dropdown
+   if (mobileSelect) {
+      Object.values(staticApiResponse.media.categories).forEach((category, index) => {
+         const option = document.createElement('option');
+         option.value = index;
+         option.textContent = category.category;
+         mobileSelect.appendChild(option);
+      });
+   }
+   // Populate desktop category items
+   const categoriesContainer = document.getElementById('categories');
+   if (categoriesContainer) {
+      Object.values(staticApiResponse.media.categories).forEach((category, index) => {
+         const item = document.createElement('div');
+         item.className = 'category-item';
+         item.dataset.categoryIndex = index;
+         item.textContent = category.category;
+         categoriesContainer.appendChild(item);
+      });
+   }
+
+   // Re-query category items after populating
+   const updatedCategoryItems = document.querySelectorAll('.category-item');
    // ================================
    // UI RENDERING
    // ================================
@@ -222,9 +276,9 @@ document.addEventListener('DOMContentLoaded', function() {
    // ================================
    // EVENT LISTENERS
    // ================================
-   categoryItems.forEach(item => {
-      item.addEventListener('click', function() {
-         categoryItems.forEach(i => i.classList.remove('active'));
+   updatedCategoryItems.forEach(item => {
+      item.addEventListener('click', function () {
+         updatedCategoryItems.forEach(i => i.classList.remove('active'));
          this.classList.add('active');
          renderCategoryContent(this.dataset.categoryIndex);
       });
@@ -232,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
    tabs.forEach(tab => {
 
-      tab.addEventListener("click", function() {
+      tab.addEventListener("click", function () {
 
          resetTabs();
 
@@ -245,13 +299,10 @@ document.addEventListener('DOMContentLoaded', function() {
          if (targetContent) targetContent.classList.add("active");
 
          if (targetId === "content1") {
-
             categorySection.style.display = "block";
             playlistContainer.style.display = 'none';
             if (window.innerWidth <= 767 && mobileCategoryDropdown) {
-
                mobileCategoryDropdown.style.display = "block";
-
             }
 
             const activeIndex = document.querySelector(".category-item.active")?.dataset.categoryIndex || 0;
@@ -269,13 +320,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
    });
 
-   if (categoryItems.length > 0) {
-      categoryItems[0].classList.add('active');
-      categoryItems[0].click();
+   if (updatedCategoryItems.length > 0) {
+      updatedCategoryItems[0].classList.add('active');
+      updatedCategoryItems[0].click();
    }
 
    if (mobileSelect) {
-      mobileSelect.addEventListener('change', function() {
+      mobileSelect.addEventListener('change', function () {
          const selectedIndex = this.value;
          const desktopCategory = document.querySelector(`.category-item[data-category-index="${selectedIndex}"]`);
          if (desktopCategory) desktopCategory.click();
@@ -283,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function() {
    }
 
    // Dialog interactions
-   document.body.addEventListener('click', async function(e) {
+   document.body.addEventListener('click', async function (e) {
       if (e.target.classList.contains('open-dialog')) {
          currentButton = e.target;
          currentButton.textContent = '−';
@@ -346,13 +397,13 @@ document.addEventListener('DOMContentLoaded', function() {
       resetPlusIcon();
    });
 
-   //=============rename-dialog-logic-start=============  
+   //=============rename-dialog-logic-start=============
 
    saveRenamePlaylist.addEventListener('click', async () => {
       const renamePlaylistName = renamePlaylistInput.value.trim();
       console.log("renamePlaylistName", renamePlaylistName, oldName);
       if (!renamePlaylistName) return alert('Please enter a playlist name.');
-      await renamePlaylist(renamePlaylistName, oldName);
+      await renamePlaylist(renamePlaylistName, oldName || selectedPlaylistName);
       oldName = null;
       renamePlaylistDialog.style.display = 'none';
       renamePlaylistInput.dataset.oldName = '';
@@ -369,16 +420,16 @@ document.addEventListener('DOMContentLoaded', function() {
    // API FUNCTIONS
    // ================================
 
-   function renamePlaylist(renametest1, oldRename) {
+   function renamePlaylist(newName, oldName) {
       const renamePlaylistName = {
-         previousPlaylistName: oldRename,
-         playlistName: renametest1
+         previousPlaylistName: oldName,
+         playlistName: newName
       };
 
       return fetch('/libs/granite/csrf/token.json')
          .then(res => res.json())
          .then(csrf => {
-            return fetch('/bin/rename-playlist-name', {
+            return fetch(servletParentPath + '.rename-playlist.json', {
                method: 'POST',
                headers: {
                   'Content-Type': 'application/json',
@@ -392,13 +443,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
 
             if (data.status === 'success') {
-               showPopup(data.message || 'Rename operation was successful');
+               console.log("data", data.message, data.status);
+               snackBarMessage(data.message, data.status)
             } else {
-               showErrorPopup(data.message || 'Rename operation was not successful');
+               snackBarMessage(data.message, "error");
             }
          })
          .catch(err => {
-            showErrorPopup(err.message || 'Failed to rename playlist.');
+            const error = JSON.parse(err)
+            snackBarMessage(error.message, "error");
          });
    }
 
@@ -406,7 +459,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return fetch('/libs/granite/csrf/token.json')
          .then(res => res.json())
          .then(csrf => {
-            return fetch('/bin/aemascs/returnPlaylists', {
+            return fetch(servletParentPath + '.playlist-names.json', {
                method: 'GET',
                headers: {
                   'Content-Type': 'application/json',
@@ -418,11 +471,17 @@ document.addEventListener('DOMContentLoaded', function() {
          .then(async data => {
 
             const response = await data.json();
+            console.log("response", response)
+            if (response.status === "success") {
+               return response.playlistNames || [];
+            } else {
+               snackBarMessage(response.message, "error");
+            }
 
-            return response.playlistNames || [];
          })
          .catch(err => {
-            showErrorPopup(err.message || 'Failed to render playlists.');
+            const error = JSON.parse(err)
+            snackBarMessage(error.message, "error");
             return [];
          });
    }
@@ -431,7 +490,7 @@ document.addEventListener('DOMContentLoaded', function() {
       fetch('/libs/granite/csrf/token.json')
          .then(res => res.json())
          .then(csrf => {
-            fetch('/bin/aemascs/addVideoToPlaylist', {
+            fetch(servletParentPath + '.add-video.json', {
                   method: 'POST',
                   headers: {
                      'Content-Type': 'application/json',
@@ -448,23 +507,23 @@ document.addEventListener('DOMContentLoaded', function() {
                })
                .then(data => {
                   if (data.status === 'success') {
-                     showPopup(`${data.message || "Added successfully to selected playlists."}`);
+                     snackBarMessage(data.message, data.status);
                   } else {
-                     showErrorPopup(`${data.message || "Failed to add selected playlists."}`);
+                     snackBarMessage(data.message, "error");
                   }
                })
                .catch(err => {
-                  showErrorPopup(`${err.message || "Select any playlist to add video."}`);
+                  const error = JSON.parse(err)
+                  snackBarMessage(error.message, "error");
                });
          });
-
    }
 
    function createPlaylistApi(payload) {
       fetch('/libs/granite/csrf/token.json')
          .then(res => res.json())
          .then(csrf => {
-            fetch('/bin/create-playlist', {
+            fetch(servletParentPath + '.create-playlist.json', {
                   method: 'POST',
                   headers: {
                      'Content-Type': 'application/json',
@@ -477,42 +536,14 @@ document.addEventListener('DOMContentLoaded', function() {
                   const data = await response.json();
 
                   if (data.status === 'success') {
-                     showPopup(data.message || "Operation failed");
+                     snackBarMessage(data.message, data.status);
                   } else {
-                     showErrorPopup(data.message);
+                     snackBarMessage(data.message, "error");
                   }
                })
                .catch(err => {
-                  showErrorPopup("Unexpected error occurred: ", err.message);
-               });
-         });
-   }
-
-   function deletePlaylist(payload) {
-      fetch('/libs/granite/csrf/token.json')
-         .then(res => res.json())
-         .then(csrf => {
-            fetch('/bin/delete-playlist', {
-                  method: 'POST',
-                  headers: {
-                     'Content-Type': 'application/json',
-                     'CSRF-Token': csrf.token,
-                     Authorization: 'Basic ' + btoa('admin:admin'),
-                  },
-                  body: JSON.stringify(payload),
-               })
-               .then(async response => {
-                  const data = await response.json();
-
-                  if (data.status === 'success') {
-                     showPopup(data.message || 'Playlist deletion was successful');
-                  } else {
-                     showErrorPopup(data.message || 'Playlist deletion was unsuccessful');
-                  }
-                  return data;
-               })
-               .catch(err => {
-                  showErrorPopup(err.message || 'Failed to delete playlist.');
+                  const error = JSON.parse(err)
+                  snackBarMessage(error.message, "error");
                });
          });
    }
@@ -521,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const csrfRes = await fetch('/libs/granite/csrf/token.json');
       const csrf = await csrfRes.json();
 
-      const playlistDataResponse = await fetch('/bin/aemascs/playlistsData', {
+      const playlistDataResponse = await fetch(servletParentPath + '.playlists-data.json', {
          method: 'GET',
          headers: {
             'Content-Type': 'application/json',
@@ -529,29 +560,127 @@ document.addEventListener('DOMContentLoaded', function() {
             Authorization: 'Basic ' + btoa('admin:admin'),
          },
       });
-      mainresponse = await playlistDataResponse.json();
-      return mainresponse.playlistData || [];
+      mainResponse = await playlistDataResponse.json();
+      if (mainResponse.status === "success") {
+         return mainResponse.playlistData || [];
+      }
+      return mainResponse || [];
    }
 
-   //=====render playlist tab-cards-----start---- ================= 
+   async function changeOrderApi(payload) {
+      fetch('/libs/granite/csrf/token.json')
+         .then(res => res.json())
+         .then(csrf => {
+            fetch(servletParentPath + '.rearrange-videos.json', {
+                  method: 'POST',
+                  headers: {
+                     'Content-Type': 'application/json',
+                     'CSRF-Token': csrf.token,
+                     Authorization: 'Basic ' + btoa('admin:admin'),
+                  },
+                  body: JSON.stringify(payload),
+               })
+               .then(async response => {
+                  const data = await response.json();
+
+                  if (data.status === 'success') {
+                     snackBarMessage(data.message || 'Order Changed successfully', data.status);
+                  } else {
+                     snackBarMessage(data.message || 'Order Changes was unsuccessful', 'error');
+                  }
+                  return data;
+               })
+               .catch(err => {
+                  snackBarMessage(error.message, "error")
+                  //showErrorPopup(err.message || 'Failed to delete video.');
+               });
+         });
+   }
+
+   function deletePlaylist(payload) {
+      fetch('/libs/granite/csrf/token.json')
+         .then(res => res.json())
+         .then(csrf => {
+            fetch(servletParentPath + '.delete-playlist.json', {
+                  method: 'POST',
+                  headers: {
+                     'Content-Type': 'application/json',
+                     'CSRF-Token': csrf.token,
+                     Authorization: 'Basic ' + btoa('admin:admin'),
+                  },
+                  body: JSON.stringify(payload),
+               })
+               .then(async response => {
+                  const data = await response.json();
+
+                  if (data.status === 'success') {
+                     snackBarMessage(data.message || 'Playlist deletion was successful', data.status);
+                  } else {
+                     snackBarMessage(data.message || 'Playlist deletion was unsuccessful', "error");
+                  }
+                  return data;
+               })
+               .catch(err => {
+                  snackBarMessage(err.message || 'Failed to delete playlist.', "error");
+               });
+         });
+   }
+
+   function deleteVideo(url, title) {
+      console.log("payload for delete video", {
+         videoUrl: url,
+         playlistName: title
+      });
+      fetch('/libs/granite/csrf/token.json')
+         .then(res => res.json())
+         .then(csrf => {
+            fetch(servletParentPath + '.delete-video.json', {
+                  method: 'POST',
+                  headers: {
+                     'Content-Type': 'application/json',
+                     'CSRF-Token': csrf.token,
+                     Authorization: 'Basic ' + btoa('admin:admin'),
+                  },
+                  body: JSON.stringify({
+                     videoUrl: url,
+                     playlistName: title
+                  }),
+               })
+               .then(async response => {
+                  const data = await response.json();
+
+                  if (data.status === 'success') {
+                     snackBarMessage(data.message || 'Video deletion was successful', data.status);
+                  } else {
+                     snackBarMessage(data.message || 'Video deletion was unsuccessful', "error");
+                  }
+                  return data;
+               })
+               .catch(err => {
+                  snackBarMessage(err.message || 'Failed to delete video.', "error");
+               });
+         });
+   }
+
+   //==========api callS ends here=================================
+
+   //=====render playlist tab-cards-----start---- =================
    async function renderPlaylist() {
 
       const playlistData = await getPlaylistsDataApi();
-      console.log('API Response:', playlistData);
-
-      // Empty the container before rendering new content
+      if (playlistData.status === "failed") {
+         playlistContainer.innerHTML = `${playlistData.message}`;
+         return "";
+      }
       playlistContainer.innerHTML = '';
-
-      // Loop through the playlist data and create the card for each
       playlistData.forEach(playlistObject => {
          const [name] = Object.keys(playlistObject);
          const videoUrls = playlistObject[name];
-
-         // Create the div that will hold each playlist card
          const playlistDiv = document.createElement('div');
          playlistDiv.className = 'playlist-item';
-
-         // Thumbnail Image
+         playlistDiv.addEventListener('click', () => {
+            selectedPlaylistName = name;
+         });
          const a = document.createElement('a');
          a.href = '#';
          const img = document.createElement('img');
@@ -560,6 +689,7 @@ document.addEventListener('DOMContentLoaded', function() {
          a.appendChild(img);
          a.addEventListener('click', async (event) => {
             event.preventDefault();
+            playListName = name;
             // ====below function for rendering the playList video renderings==start==========
             await playListVideos(name)
             // ====below function for rendering the playList video renderings==end============
@@ -570,13 +700,10 @@ document.addEventListener('DOMContentLoaded', function() {
          playlistItemsContainer.className = 'playlist-item-container';
 
          // Playlist Info (Name and Item Count)
+
          const info = document.createElement('div');
          info.className = 'playlist-info';
-         if (oldName) {
-            info.innerHTML = `${oldName} <br> ${videoUrls.length} items`;
-         } else {
-            info.innerHTML = `${name} <br> ${videoUrls.length} items`;
-         }
+         info.innerHTML = `${oldName || name} <br> ${videoUrls.length} items`;
 
          // Options (Rename, Delete)
          const optionsWrapper = document.createElement('div');
@@ -603,30 +730,9 @@ document.addEventListener('DOMContentLoaded', function() {
             dropdown.classList.add('hidden');
          });
 
-         //=========delete===start==================================   
          deleteOption.addEventListener('click', () => {
             dropdown.classList.add('hidden');
-            const modal = document.getElementById('delete-modal');
-            const message = document.getElementById('delete-message');
-            const confirmBtn = document.getElementById('confirm-delete');
-            const cancelBtn = document.getElementById('cancel-delete');
-            modal.classList.remove('hidden');
-            const newConfirm = confirmBtn.cloneNode(true);
-            const newCancel = cancelBtn.cloneNode(true);
-            confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
-            cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
-            newConfirm.addEventListener('click', () => {
-               deletePlaylist({
-                  playlistName: name
-               });
-               modal.classList.add('hidden');
-               setTimeout(() => {
-                  renderPlaylist();
-               }, 500);
-            });
-            newCancel.addEventListener('click', () => {
-               modal.classList.add('hidden');
-            });
+            handleDelete(name);
          });
          // =========delete== end ========
 
@@ -658,10 +764,10 @@ document.addEventListener('DOMContentLoaded', function() {
       });
    }
 
-   //=====palylist-video-render-function==start=================
+   //=====playlist-video-render-function==start=================
    function playListVideos(name) {
-      console.log("playlistData", mainresponse);
-      const filteredData = getPlaylistByName(mainresponse, name)
+      console.log("playlistData", mainResponse);
+      const filteredData = getPlaylistByName(mainResponse, name)
       console.log("filteredData", filteredData);
       const mainDialog = document.querySelector(".centered-container");
       mainDialog.style.display = "none";
@@ -683,16 +789,16 @@ document.addEventListener('DOMContentLoaded', function() {
             homeBreadcrumb.addEventListener("click", goBackToMain);
          }
       }
-
+      changeOrderVideoOrgList = filteredData
       const sidebar = document.querySelector(".playlist-items");
       leftSidebar(sidebar, filteredData);
    }
 
    function updateVideoCount() {
       const videoCountElement = document.querySelector('.video-count');
-       console.log(videoCountElement);
+      console.log(videoCountElement);
       const totalCountTag = document.querySelector('.total-count');
-         console.log(totalCountTag);
+      console.log(totalCountTag);
       totalCountTag.textContent = `${totalVideos} items | 6:31:23`;
       videoCountElement.textContent = `${currentVideoIndex + 1}/${totalVideos}`;
    }
@@ -741,8 +847,7 @@ document.addEventListener('DOMContentLoaded', function() {
             removeBtn.innerHTML = '<span class="minus">-</span>';
             removeBtn.onclick = (e) => {
                e.stopPropagation();
-               deleteVideoFromSidebar(url, title);
-               // rowDiv.remove();
+               deleteVideo(url, title);
             };
 
             // Click handler for rendering video on right side
@@ -768,7 +873,10 @@ document.addEventListener('DOMContentLoaded', function() {
       });
 
       // Render first video by default
-      if (firstVideoUrl && firstVideoTitle) {
+      if (!videoLoaded) {
+         console.log("clear video triggered", videoLoaded)
+         clearRightVideo();
+      } else {
          rightVideo(firstVideoUrl, firstVideoTitle);
       }
    }
@@ -809,13 +917,9 @@ document.addEventListener('DOMContentLoaded', function() {
       updateVideoCount();
    }
 
-   function deleteVideoFromSidebar(url, title) {
-      console.log("delete function is triggered from sidebar", url, title);
-   }
-
-   function getPlaylistByName(mairesponse, name) {
-      console.log("mairesponse", mairesponse);
-      const filtered = mairesponse.playlistData.filter(item => {
+   function getPlaylistByName(mainResponse, name) {
+      console.log("mainResponse", mainResponse);
+      const filtered = mainResponse.playlistData.filter(item => {
          const key = Object.keys(item)[0];
          return key === name;
       });
@@ -837,5 +941,275 @@ document.addEventListener('DOMContentLoaded', function() {
       const mainDialog = document.querySelector(".centered-container");
       if (mainDialog) mainDialog.style.display = "block";
    }
+
+   // ----------new -dialog code for playlist--start--------------------------------
+   const deleteModel = document.getElementById('delete-model');
+   const cancelDeleteBtn = document.getElementById('cancel-delete');
+   const confirmDeleteBtn = document.getElementById('confirm-delete');
+   menuToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menu.classList.toggle('hidden');
+   });
+
+   document.addEventListener('click', (e) => {
+      if (!menu.contains(e.target) && e.target !== menuToggle) {
+         menu.classList.add('hidden');
+      }
+   });
+
+   menu.addEventListener('click', (e) => {
+      const action = e.target.getAttribute('data-action');
+
+      if (action === 'delete') {
+         handleDelete(selectedPlaylistName);
+      } else if (action === 'rename') {
+         handleRename(selectedPlaylistName);
+      } else if (action === 'changeOrder') {
+         const filteredData = getPlaylistByName(mainResponse, playListName)
+         handleChangeOrder(playListName, filteredData);
+      }
+      menu.classList.add('hidden');
+   });
+
+
+   function handleDelete(name) {
+      selectedPlaylistName = name;
+      const model = document.getElementById('delete-model');
+      const confirmBtn = document.getElementById('confirm-delete');
+      const cancelBtn = document.getElementById('cancel-delete');
+      model.classList.remove('hidden');
+      document.body.classList.add('dialog-open');
+
+      const newConfirm = confirmBtn.cloneNode(true);
+      const newCancel = cancelBtn.cloneNode(true);
+      confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+      cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+      newConfirm.addEventListener('click', () => {
+         deletePlaylist({
+            playlistName: selectedPlaylistName
+         });
+         model.classList.add('hidden');
+         document.body.classList.remove('dialog-open');
+         setTimeout(() => renderPlaylist(), 500);
+      });
+
+      newCancel.addEventListener('click', () => {
+         model.classList.add('hidden');
+         document.body.classList.remove('dialog-open');
+      });
+   }
+
+   function handleRename(oldName) {
+      const renameDialog = document.getElementById('RenameDialog');
+      const renameInput = document.getElementById('renamePlaylistName');
+      const saveBtn = document.getElementById('saveRenamePlaylist');
+      const cancelBtn = document.getElementById('renamePlaylistCancel');
+
+      renameDialog.style.display = 'block';
+      document.body.classList.add('dialog-open');
+      renameInput.value = oldName || selectedPlaylistName || '';
+
+      const newSaveBtn = saveBtn.cloneNode(true);
+      const newCancelBtn = cancelBtn.cloneNode(true);
+
+      saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+      cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+      newSaveBtn.addEventListener('click', async () => {
+         const newName = renameInput.value.trim();
+         if (newName) {
+            await renamePlaylist(newName, oldName || selectedPlaylistName);
+            renameDialog.style.display = 'none';
+            document.body.classList.remove('dialog-open');
+            setTimeout(() => renderPlaylist(), 500);
+         } else {
+            alert("Playlist name can't be empty.");
+         }
+      });
+
+      newCancelBtn.addEventListener('click', () => {
+         renameDialog.style.display = 'none';
+         document.body.classList.remove('dialog-open');
+      });
+   }
+
+   changePlaylistCancel.addEventListener('click', (e) => {
+      const changeDialog = document.querySelector('.change-dialog');
+      changeDialog.style.display = "none";
+   });
+
+   function handleChangeOrder(playListName, changeOrderVideoOrgList) {
+      const changeDialog = document.getElementById('changeOrderDialog');
+      const changeList = changeDialog.querySelector('.change-list');
+      const saveChangePlaylist = document.getElementById('saveChangePlaylist');
+      const changePlaylistCancel = document.getElementById('changePlaylistCancel');
+
+      videoList = changeOrderVideoOrgList[0][playListName].map((url, i) => ({
+         title: `Video ${i + 1}`,
+         url: url
+      }));
+      console.log("videoList", videoList, changeOrderVideoOrgList);
+      const sidebar = document.querySelector(".playlist-items");
+      changeDialog.style.display = "flex";
+      renderDialogList(changeList, videoList);
+      saveChangePlaylist.onclick = async (e) => {
+         if (latestPlayListResponse !== undefined) {
+            const respo = filteredData1(latestPlayListResponse, playListName)
+            changeDialog.style.display = "none";
+            const updatedUrls = videoList.map(v => v.url);
+            leftSidebar(sidebar, respo);
+            const payload = {
+               "playlistName": playListName,
+               "playlistItems": updatedUrls
+            }
+            await changeOrderApi(payload)
+         } else {
+            changeDialog.style.display = "none";
+            const updatedUrls = videoList.map(v => v.url);
+            const payload = {
+               "playlistName": playListName,
+               "playlistItems": updatedUrls
+            }
+            await changeOrderApi(payload)
+         }
+      };
+
+      changePlaylistCancel.onclick = () => {
+         changeDialog.style.display = "none";
+      };
+
+      // Render function with full circular up/down support
+      function renderDialogList(container, videos) {
+         container.innerHTML = '';
+         const rowDiv1 = document.createElement('div');
+         rowDiv1.className = 'playlist-row1';
+
+         videos.forEach((video, index) => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'playlist-row2';
+            rowDiv.draggable = true;
+            rowDiv.dataset.index = index;
+
+            // Drag Events
+            rowDiv.addEventListener('dragstart', (e) => {
+               e.dataTransfer.setData('text/plain', index.toString());
+               e.currentTarget.classList.add('dragging');
+            });
+
+            rowDiv.addEventListener('dragover', (e) => {
+               e.preventDefault();
+               e.currentTarget.classList.add('drag-over');
+            });
+
+            rowDiv.addEventListener('dragleave', (e) => {
+               e.currentTarget.classList.remove('drag-over');
+            });
+
+            rowDiv.addEventListener('drop', (e) => {
+               e.preventDefault();
+               const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+               const toIndex = parseInt(e.currentTarget.dataset.index, 10);
+               if (fromIndex !== toIndex) {
+                  const [moved] = videos.splice(fromIndex, 1);
+                  videos.splice(toIndex, 0, moved);
+                  renderDialogList(container, videos);
+               }
+            });
+
+            rowDiv.addEventListener('dragend', (e) => {
+               document.querySelectorAll('.playlist-row2').forEach(el => {
+                  el.classList.remove('dragging', 'drag-over');
+               });
+            });
+
+            // Controls
+            const controls = document.createElement('div');
+            controls.className = 'reorder-controls1';
+
+            const upBtn = document.createElement('button');
+            upBtn.textContent = '△';
+            upBtn.onclick = () => {
+               const [moved] = videos.splice(index, 1);
+               const newIndex = index === 0 ? videos.length : index - 1;
+               videos.splice(newIndex, 0, moved);
+               renderDialogList(container, videos);
+            };
+
+            const downBtn = document.createElement('button');
+            downBtn.textContent = '▽';
+            downBtn.onclick = () => {
+               const [moved] = videos.splice(index, 1);
+               const newIndex = index === videos.length ? 0 : index + 1;
+               videos.splice(newIndex % (videos.length + 1), 0, moved);
+               renderDialogList(container, videos);
+            };
+
+            controls.appendChild(upBtn);
+            controls.appendChild(downBtn);
+
+            const img = document.createElement('img');
+            img.src = getThumbnail(video.url);
+            img.className = 'video-thumbnail1';
+            img.alt = 'Thumbnail';
+
+            const div1 = document.createElement('div');
+            div1.className = 'remove-title';
+            const titleSpan = document.createElement('span');
+            titleSpan.className = 'video-title1';
+            titleSpan.textContent = video.title;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.innerHTML = '<span class="my-css">-</span>';
+            removeBtn.className = 'remove-button';
+            removeBtn.onclick = () => {
+               handleRemoveVideo(video.url, playListName);
+            };
+
+            rowDiv.appendChild(controls);
+            rowDiv.appendChild(img);
+            div1.appendChild(titleSpan);
+            div1.appendChild(removeBtn);
+            rowDiv.appendChild(div1);
+            rowDiv1.appendChild(rowDiv);
+         });
+
+         container.appendChild(rowDiv1);
+      }
+
+      // Helper to get thumbnails
+      function getThumbnail(url) {
+         if (url.includes('youtube.com')) {
+            const match = url.match(/embed\/([0-9A-Za-z_-]{11})/);
+            return match ? `https://img.youtube.com/vi/${match[1]}/default.jpg` : '';
+         } else if (url.endsWith('.mp4')) {
+            return 'https://via.placeholder.com/120x90.png?text=MP4';
+         } else {
+            return 'https://via.placeholder.com/120x90.png?text=Video';
+         }
+      }
+   }
+
+   async function handleRemoveVideo(url1, playlistName) {
+      deleteVideo(url1, playlistName)
+      const res1 = await getPlaylistsDataApi();
+      latestPlayListResponse = await getPlaylistsDataApi();
+      handleChangeOrder(playListName, result);
+   }
+
+   function filteredData1(data, name) {
+      return data.filter(item => Object.keys(item)[0] === name);
+   }
+
+   //========  api call for remaining code here =====================
+   function clearRightVideo() {
+      const videoContainer = document.querySelector('.playlist-player .video-frame');
+      const videoDetails = document.querySelector('.playlist-player .video-details');
+      console.log("videoContainer", videoContainer)
+      if (videoContainer) {
+         videoDetails.innerHTML = '';
+         videoContainer.innerHTML = '<p style="display: flex; justify-content: space-around; padding-top: 45%;">No video to render</p>'; // or keep it empty
+      }
+   }
+   // ----------new -dialog code for playlist--end----------------------------------
 
 });
