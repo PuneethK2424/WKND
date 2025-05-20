@@ -4,8 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
-import org.apache.sling.servlets.annotations.SlingServletPaths;
+import org.apache.sling.servlets.annotations.SlingServletResourceTypes;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -16,10 +17,10 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 
 @Component(service = Servlet.class)
-@SlingServletPaths(value = "/bin/aemascs/deleteVideoFromPlaylist")
-public class DeleteVideoFromPlaylistServlet extends SlingAllMethodsServlet {
+@SlingServletResourceTypes(resourceTypes ="sling/servlet/default", selectors = "delete-video", extensions = "json", methods = HttpConstants.METHOD_POST)
+public class DeleteVideoServlet extends SlingAllMethodsServlet {
 
-    private static final Logger log = LoggerFactory.getLogger(DeleteVideoFromPlaylistServlet.class);
+    private static final Logger log = LoggerFactory.getLogger(DeleteVideoServlet.class);
 
     @Reference
     private VideoPlaylistService videoPlaylistService;
@@ -41,7 +42,6 @@ public class DeleteVideoFromPlaylistServlet extends SlingAllMethodsServlet {
             String playlistName = jsonNode.has("playlistName") ? jsonNode.get("playlistName").asText() : null;
 
             if (videoUrl == null || playlistName == null) {
-                response.setStatus(SlingHttpServletResponse.SC_BAD_REQUEST);
                 responseJson = objectMapper.createObjectNode()
                         .put("status", "failed")
                         .put("message", "Missing videoUrl or playlistName in request body.");
@@ -50,18 +50,9 @@ public class DeleteVideoFromPlaylistServlet extends SlingAllMethodsServlet {
             }
 
             // Use service and get structured response
-            responseJson = videoPlaylistService.deleteVideoFromPlaylist(playlistName, videoUrl, request.getResourceResolver());
-
-            String status = responseJson.has("status") ? responseJson.get("status").asText() : "failed";
-            if ("success".equalsIgnoreCase(status)) {
-                response.setStatus(SlingHttpServletResponse.SC_OK);
-            } else {
-                response.setStatus(SlingHttpServletResponse.SC_NOT_FOUND);
-            }
-
+            responseJson = videoPlaylistService.deleteVideo(playlistName, videoUrl, request.getResourceResolver());
         } catch (Exception e) {
             log.error("Error processing delete video request", e);
-            response.setStatus(SlingHttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             responseJson = objectMapper.createObjectNode()
                     .put("status", "failed")
                     .put("message", "Internal server error: " + e.getMessage());

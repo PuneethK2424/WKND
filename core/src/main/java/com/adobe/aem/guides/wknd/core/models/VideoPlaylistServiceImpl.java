@@ -2,14 +2,16 @@ package com.adobe.aem.guides.wknd.core.models;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jcr.*;
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Session;
+import javax.jcr.Value;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,10 +22,10 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
 
     private static final Logger log = LoggerFactory.getLogger(VideoPlaylistServiceImpl.class);
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public JsonNode saveVideoInPlaylists(String videoUrl, List<String> playlists, ResourceResolver resourceResolver) {
+    public JsonNode saveVideo(String videoUrl, List<String> playlists, ResourceResolver resourceResolver) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
             Session session = resourceResolver.adaptTo(Session.class);
@@ -63,6 +65,11 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
                 List<String> videoUrls = new ArrayList<>();
                 if (playlistNode.hasProperty("videoUrls")) {
                     Value[] values = playlistNode.getProperty("videoUrls").getValues();
+                    if (values.length == 3) {
+                        response.put("status", "failed");
+                        response.put("message", "maximum limit exceeded");
+                        return objectMapper.convertValue(response, JsonNode.class);
+                    }
                     for (Value value : values) {
                         videoUrls.add(value.getString());
                     }
@@ -91,10 +98,6 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
                 response.put("message", "Video already exists in all specified playlists.");
             }
 
-        } catch (RepositoryException e) {
-            log.error("Repository exception", e);
-            response.put("status", "failed");
-            response.put("message", "Repository exception: " + e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected exception", e);
             response.put("status", "failed");
@@ -105,7 +108,7 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
     }
 
     @Override
-    public JsonNode deleteVideoFromPlaylist(String playlistName, String videoUrl, ResourceResolver resolver) {
+    public JsonNode deleteVideo(String playlistName, String videoUrl, ResourceResolver resolver) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
             playlistName = playlistName.replace("\"", "");
@@ -167,22 +170,18 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
             response.put("message", "Video removed from playlist successfully.");
             return objectMapper.convertValue(response, JsonNode.class);
 
-        } catch (RepositoryException e) {
-            log.error("Repository exception while deleting video from playlist", e);
-            response.put("status", "failed");
-            response.put("message", "Repository exception: " + e.getMessage());
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error("Unexpected error while deleting video from playlist", e);
             response.put("status", "failed");
             response.put("message", "Unexpected error: " + e.getMessage());
         }
-
         return objectMapper.convertValue(response, JsonNode.class);
     }
 
 
     @Override
-    public JsonNode returnPlaylists(ResourceResolver resourceResolver) {
+    public JsonNode playlistNames(ResourceResolver resourceResolver) {
         Map<String, Object> response = new LinkedHashMap<>();
 
         try {
@@ -222,11 +221,8 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
             response.put("playlistNames", playlistNames);
             return objectMapper.convertValue(response, JsonNode.class);
 
-        } catch (RepositoryException e) {
-            log.error("Repository exception while retrieving playlists", e);
-            response.put("status", "failed");
-            response.put("message", "Repository exception: " + e.getMessage());
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error("Unexpected exception while retrieving playlists", e);
             response.put("status", "failed");
             response.put("message", "Exception: " + e.getMessage());
@@ -263,6 +259,11 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
             }
 
             NodeIterator iterator = userNode.getNodes();
+            if (!iterator.hasNext()) {
+                response.put("status", "failed");
+                response.put("message", "no playlists found for the user " + username);
+                return objectMapper.convertValue(response, JsonNode.class);
+            }
             while (iterator.hasNext()) {
                 Node playlistNode = iterator.nextNode();
                 String playlistName = playlistNode.getName();

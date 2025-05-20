@@ -7,11 +7,11 @@ import java.util.List;
 
 public interface VideoPlaylistService {
 
-    JsonNode saveVideoInPlaylists(String videoUrl, List<String> playlists, ResourceResolver resolver);
+    JsonNode saveVideo(String videoUrl, List<String> playlists, ResourceResolver resolver);
 
-    JsonNode deleteVideoFromPlaylist(String playlistName, String videoUrl, ResourceResolver originalResolver);
+    JsonNode deleteVideo(String playlistName, String videoUrl, ResourceResolver originalResolver);
 
-    JsonNode returnPlaylists(ResourceResolver resourceResolver);
+    JsonNode playlistNames(ResourceResolver resourceResolver);
 
     JsonNode playlistsData(ResourceResolver resourceResolver);
 }
