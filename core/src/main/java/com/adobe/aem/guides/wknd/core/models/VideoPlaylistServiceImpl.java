@@ -45,11 +45,6 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
             String username = session.getUserID();
 
             Node userNode = PlaylistMetadataUtils.getNode(parentNode, username);
-            if (userNode == null) {
-                response.put("status", "failed");
-                response.put("message", "User node not found or could not be created");
-                return objectMapper.convertValue(response, JsonNode.class);
-            }
 
             boolean atLeastOneAdded = false;
             boolean alreadyPresent = false;
@@ -129,9 +124,9 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
 
             Node rootNode = session.getNode(Constants.ROOT_FOLDER_PATH);
             Node userNode = PlaylistMetadataUtils.getNode(rootNode, username);
-            if (userNode == null || !userNode.hasNode(playlistName)) {
+            if (!userNode.hasNode(playlistName)) {
                 response.put("status", "failed");
-                response.put("message", "Playlist '" + playlistName + "' does not exist for user '" + username + "'");
+                response.put("message", "Playlist " + playlistName + " does not exist for user " + username);
                 return objectMapper.convertValue(response, JsonNode.class);
             }
 
@@ -139,7 +134,7 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
 
             if (!playlistNode.hasProperty("videoUrls")) {
                 response.put("status", "failed");
-                response.put("message", "No 'videoUrls' property found in playlist '" + playlistName + "'");
+                response.put("message", "No videoUrls property found in playlist " + playlistName);
                 return objectMapper.convertValue(response, JsonNode.class);
             }
 
@@ -167,11 +162,10 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
 
             log.info("Successfully removed video URL '{}' from playlist '{}' for user '{}'", videoUrl, playlistName, username);
             response.put("status", "success");
-            response.put("message", "Video removed from playlist successfully.");
+            response.put("message", "Video removed from playlist" + playlistName + " successfully.");
             return objectMapper.convertValue(response, JsonNode.class);
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Unexpected error while deleting video from playlist", e);
             response.put("status", "failed");
             response.put("message", "Unexpected error: " + e.getMessage());
@@ -202,13 +196,8 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
             }
 
             Node rootNode = session.getNode(Constants.ROOT_FOLDER_PATH);
-            Node userNode = PlaylistMetadataUtils.getNode(rootNode, username);
-            if (userNode == null) {
-                log.warn("User node not found for user: {}", username);
-                response.put("status", "failed");
-                response.put("message", "User node not found");
-                return objectMapper.convertValue(response, JsonNode.class);
-            }
+            Node userNode = PlaylistMetadataUtils.getOrCreateNode(rootNode, username);
+            session.save();
 
             List<String> playlistNames = new ArrayList<>();
             NodeIterator iterator = userNode.getNodes();
@@ -221,8 +210,7 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
             response.put("playlistNames", playlistNames);
             return objectMapper.convertValue(response, JsonNode.class);
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Unexpected exception while retrieving playlists", e);
             response.put("status", "failed");
             response.put("message", "Exception: " + e.getMessage());
@@ -254,7 +242,7 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
             Node userNode = PlaylistMetadataUtils.getNode(rootNode, username);
             if (userNode == null) {
                 response.put("status", "failed");
-                response.put("message", "User node not found");
+                response.put("message", "no playlists found for the user " + username);
                 return objectMapper.convertValue(response, JsonNode.class);
             }
 
