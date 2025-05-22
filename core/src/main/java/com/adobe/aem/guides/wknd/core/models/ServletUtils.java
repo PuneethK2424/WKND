@@ -18,7 +18,7 @@ public class ServletUtils {
     }
 
     public static boolean checkUser(String username){
-        String []users=new String[]{"admin","kolhe.yamini@nextrow.com","ramanmishra@nextrow.com","ruchith.k@nextrow.com","puneeth.k@nextrow.com","murali.kolli@nextrow.com", "keertpx1","ruchithk","userMK","PlaylistUser","Sravanp"};
+        String []users=new String[]{"admin","kolhe.yamini@nextrow.com","ramanmishra@nextrow.com","ruchith.k@nextrow.com","puneeth.k@nextrow.com","murali.kolli@nextrow.com", "keertpx1","userRaj","userMK","PlaylistUser","Sravanp"};
         for (String user : users) {
             if (user.equalsIgnoreCase(username)) {
                 return true;

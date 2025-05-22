@@ -19,7 +19,7 @@
             <div class="main-parent">
                 <div class="left-div" id="categorySection">
                     <sly data-sly-test="${!playlistModel.categories || playlistModel.categories.size == 0}">
-                        <div class="no-categories">This section is restricted to users.</div>
+                        <div class="no-categories">Please author the playlist content</div>
                     </sly>
                     <sly data-sly-test="${playlistModel.categories}">
                         <div class="categories">Categories:</div>
@@ -111,6 +111,18 @@
             </div>
         </div>
     </div>
+
+    <!-- 2nd delete Dialog -->
+    <div id="deleteVideoDialog" class="model" style="display:none;">
+        <div class="new-playlist-content">
+            <h2 class="model-title">Delete item from playlist</h2>
+            <p id="delete-video-message">If you delete it, it will no longer be part of playlist</p>
+            <div class="dialog-buttons">
+                <button id="cancel-video-delete">Cancel</button>
+                <button id="confirm-video-delete">Delete</button>
+            </div>
+        </div>
+    </div>
     <!--playList dialog for render videos on click of playlist--start-->
     <!-- video rendering dialog for the AEM playlist -->
     <div class="main-playlist-container" style="display:none;">
@@ -143,7 +155,7 @@
             <input type="checkbox" id="autoplay-switch"/>
             <span class="custom-slider"></span>
             </label>
-            <label for="autoplay-switch">Automaticaly play</label>
+            <label for="autoplay-switch">Automatic play</label>
             </span>
             </div>
             <div class="playlist-items">
