@@ -807,6 +807,47 @@ document.addEventListener('DOMContentLoaded', function () {
       const checkbox = document.getElementById("autoplay-switch");
       return checkbox && checkbox.checked;
    }
+//================================================delete 2 logic===
+
+let deleteTarget = { url: "", title: "" };
+
+document.getElementById('confirm-video-delete').addEventListener('click', async () => {
+
+  const dialog = document.getElementById('deleteVideoDialog');
+
+  await deleteVideo(deleteTarget.url, deleteTarget.title);
+
+  dialog.style.display = 'none';
+
+  document.body.classList.remove('dialog-open');
+
+const sidebar = document.querySelector(".playlist-items");
+
+setTimeout(async () => {
+
+   // deleteVideo(url1,playlistName)
+
+        latestPlayListResponse=await getPlaylistsDataApi();
+
+        const result= filteredData1(latestPlayListResponse,playListName)
+
+  leftSidebar(sidebar, result);
+
+}, 500);
+
+});
+
+document.getElementById('cancel-video-delete').addEventListener('click', () => {
+
+  const dialog = document.getElementById('deleteVideoDialog');
+
+  dialog.style.display = 'none';
+
+  document.body.classList.remove('dialog-open');
+
+});
+
+//============================delete 2 end==================
 
    function leftSidebar(sidebar, filteredData) {
       sidebar.innerHTML = '';
@@ -845,16 +886,23 @@ document.addEventListener('DOMContentLoaded', function () {
             const removeBtn = document.createElement('button');
             removeBtn.className = 'remove-btn';
             removeBtn.innerHTML = '<span class="minus">-</span>';
-            removeBtn.onclick = (e) => {
-               e.stopPropagation();
-               deleteVideo(url, title);
-            };
+               removeBtn.onclick = (e) => {
+                      e.stopPropagation();
+                      deleteTarget = { url, title };
+
+                      const dialog = document.getElementById('deleteVideoDialog');
+                      dialog.style.display = 'block';
+                      document.body.classList.add('dialog-open');
+                    };
 
             // Click handler for rendering video on right side
-            rowDiv.onclick = () => {
-               currentVideoIndex = idx;
-               rightVideo(url, title);
-            };
+           rowDiv.onclick = () => {
+                      const allRows = sidebar.querySelectorAll('.playlist-row');
+                      allRows.forEach(row => row.classList.remove('active-row'));
+                     rowDiv.classList.add('active-row');
+                      currentVideoIndex = idx;
+                      rightVideo(url, title);
+                     };
 
             rowDiv.appendChild(rowNumber);
             rowDiv.appendChild(img);
@@ -868,6 +916,7 @@ document.addEventListener('DOMContentLoaded', function () {
                firstVideoUrl = url;
                firstVideoTitle = title;
                videoLoaded = true;
+               rowDiv.classList.add('active-row');
             }
          });
       });
@@ -999,7 +1048,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
    }
 
-   function handleRename(oldName) {
+  function handleRename(oldName) {
       const renameDialog = document.getElementById('RenameDialog');
       const renameInput = document.getElementById('renamePlaylistName');
       const saveBtn = document.getElementById('saveRenamePlaylist');
@@ -1052,32 +1101,46 @@ document.addEventListener('DOMContentLoaded', function () {
       const sidebar = document.querySelector(".playlist-items");
       changeDialog.style.display = "flex";
       renderDialogList(changeList, videoList);
-      saveChangePlaylist.onclick = async (e) => {
-         if (latestPlayListResponse !== undefined) {
-            const respo = filteredData1(latestPlayListResponse, playListName)
-            changeDialog.style.display = "none";
-            const updatedUrls = videoList.map(v => v.url);
-            leftSidebar(sidebar, respo);
-            const payload = {
-               "playlistName": playListName,
-               "playlistItems": updatedUrls
-            }
-            await changeOrderApi(payload)
-         } else {
-            changeDialog.style.display = "none";
-            const updatedUrls = videoList.map(v => v.url);
-            const payload = {
-               "playlistName": playListName,
-               "playlistItems": updatedUrls
-            }
-            await changeOrderApi(payload)
-         }
-      };
+     saveChangePlaylist.onclick = async (e) => {
+      console.log(e.target);
+      console.log("res1-leftside bar ",latestPlayListResponse)
+      if(latestPlayListResponse!==undefined){
+          // const respo=filteredData1(latestPlayListResponse,playListName)
+          changeDialog.style.display = "none";
+          const updatedUrls = videoList.map(v => v.url);
+          const payload={"playlistName":playListName,"playlistItems":updatedUrls}
+          await changeOrderApi(payload)
+            setTimeout( async()=>{
+            const result= await getPlaylistsDataApi();
+           const respo=filteredData1(result,playListName);
+          console.log("result",result,respo);
+          leftSidebar(sidebar, respo);
+           },500);
+         //console.log("payload",payload);
+      }else{
+          console.log("else block is triggered");
+    changeDialog.style.display = "none";
+    const updatedUrls = videoList.map(v => v.url);
+      const payload={"playlistName":playListName,"playlistItems":updatedUrls}
+      console.log("payload",payload);
+         // snackBarMessage("please change the order",'error');
+     await changeOrderApi(payload)
+     setTimeout( async()=>{
+            const result= await getPlaylistsDataApi();
+           const respo=filteredData1(result,playListName);
+          console.log("result",result,respo);
+          leftSidebar(sidebar, respo);
+           },500);
+      }
+    // send to API here
+  };
+      changePlaylistCancel.onclick = async () => {
+    changeDialog.style.display = "none";
+    const result= await getPlaylistsDataApi();
+    const respo=filteredData1(result,playListName);
 
-      changePlaylistCancel.onclick = () => {
-         changeDialog.style.display = "none";
-      };
-
+    leftSidebar(sidebar, respo);
+  };
       // Render function with full circular up/down support
       function renderDialogList(container, videos) {
          container.innerHTML = '';
@@ -1190,11 +1253,13 @@ document.addEventListener('DOMContentLoaded', function () {
    }
 
    async function handleRemoveVideo(url1, playlistName) {
-      deleteVideo(url1, playlistName)
-      const res1 = await getPlaylistsDataApi();
-      latestPlayListResponse = await getPlaylistsDataApi();
-      handleChangeOrder(playListName, result);
-   }
+         deleteVideo(url1,playlistName)
+        setTimeout( async ()=>{
+         latestPlayListResponse=await getPlaylistsDataApi();
+         const result= filteredData1(latestPlayListResponse,playlistName)
+         handleChangeOrder(playListName, result)
+        },500);
+  }
 
    function filteredData1(data, name) {
       return data.filter(item => Object.keys(item)[0] === name);
