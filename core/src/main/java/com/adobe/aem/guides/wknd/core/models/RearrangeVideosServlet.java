@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component(service = Servlet.class)
-@SlingServletResourceTypes(resourceTypes = "sling/servlet/default", selectors = "rearrange-videos", extensions = "json", methods = HttpConstants.METHOD_POST)
+@SlingServletResourceTypes(resourceTypes = "wknd/components/abbvie-playlist", selectors = "rearrangeVideos", extensions = "json", methods = HttpConstants.METHOD_POST)
 public class RearrangeVideosServlet extends SlingAllMethodsServlet {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());

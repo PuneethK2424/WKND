@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component(service = Servlet.class)
-@SlingServletResourceTypes(resourceTypes = "sling/servlet/default", selectors = "add-video", extensions = "json", methods = HttpConstants.METHOD_POST)
+@SlingServletResourceTypes(resourceTypes = "wknd/components/abbvie-playlist", selectors = "addVideo", extensions = "json", methods = HttpConstants.METHOD_POST)
 public class AddVideoServlet extends SlingAllMethodsServlet {
 
     private static final Logger log = LoggerFactory.getLogger(AddVideoServlet.class);

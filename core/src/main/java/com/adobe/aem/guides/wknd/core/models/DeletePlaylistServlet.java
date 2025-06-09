@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component(service = Servlet.class)
-@SlingServletResourceTypes(resourceTypes = "sling/servlet/default", selectors = "delete-playlist", extensions = "json", methods = HttpConstants.METHOD_POST)
+@SlingServletResourceTypes(resourceTypes = "wknd/components/abbvie-playlist", selectors = "deletePlaylist", extensions = "json", methods = HttpConstants.METHOD_POST)
 public class DeletePlaylistServlet extends SlingAllMethodsServlet {
 
     @Reference
