@@ -1,3 +1,7 @@
+.abbvie-playlist {
+	display: block !important;
+}
+
 .centered-container {
 	max-width: 1200px;
 	margin: 40px auto;
@@ -66,6 +70,7 @@
 	font-weight: bold;
 	margin-bottom: 10px;
 	color: #003366;
+	display: none:
 }
 
 .category-item {
@@ -565,6 +570,7 @@ span.create-plus:hover {
 	border-radius: 15px;
 	display: flex;
 	flex-direction: column;
+	gap: 0.75rem;
 	transition: background-color 0.3s;
 }
 
@@ -585,9 +591,15 @@ span.create-plus:hover {
 }
 
 .video-details {
-	font-size: 1rem;
-	color: #333;
+  position: relative;
+  font-size: 1rem;
+  color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1px 55px;
 }
+
 
 .head-play {
 	display: flex;
@@ -595,7 +607,7 @@ span.create-plus:hover {
 	justify-content: space-between;
 }
 
-.custom-video-iframe {
+ .custom-video-iframe {
 	border-radius: 8px;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	max-width: 100%;
@@ -610,8 +622,8 @@ span.create-plus:hover {
 }
 
 .video-titles {
-	margin-left: 10%;
-	margin-top: -1%;
+	margin-left: 3%;
+
 }
 
 @media (max-width: 768px) {
@@ -630,7 +642,6 @@ span.create-plus:hover {
 	.main-playlist-container {
 		display: flex;
 		flex-direction: column-reverse;
-		;
 		gap: 1rem;
 		padding: 1rem;
 		flex-wrap: wrap;
@@ -642,7 +653,6 @@ span.create-plus:hover {
 	.main-playlist-container {
 		display: flex;
 		flex-direction: column-reverse;
-		;
 		gap: 1rem;
 		padding: 1rem;
 		flex-wrap: wrap;
@@ -894,9 +904,9 @@ span.create-plus:hover {
 
 	.new-playlist-content {
 		width: 80%;
-		/* Slightly narrower for tablets */
+
 		max-width: 370px;
-		/* Allow a bit more width */
+
 		padding: 20px;
 		margin: 1rem auto;
 	}
@@ -915,31 +925,85 @@ span.create-plus:hover {
 	}
 }
 
-.mobile-category-dropdown {
-	display: none;
-	margin: 1rem 0;
-	border-radius: 5rem;
-
-}
 
 @media (max-width: 767px) {
 	#categorySection {
 		display: none !important;
 	}
 
+	.categories {
+		display: none !important;
+	}
+
+	.dropdown-wrapper {
+		width: 90%;
+		max-width: none;
+		margin: 0.5rem auto;
+	}
+
 	.mobile-category-dropdown {
-		display: block;
+		padding: 12px 8px 4px;
+	}
+
+	.custom-legend {
+		font-size: 11px;
+		left: 10px;
+	}
+
+	.dropdown-toggle {
+		padding: 5px 8px;
+	}
+
+	.selected-text {
+		font-size: 13px;
+	}
+
+	.dropdown-icon {
+		font-size: 11px;
+	}
+
+	.dropdown-option {
+		padding: 6px 8px;
+		font-size: 13px;
+	}
+}
+
+@media (min-width: 480px) and (max-width: 600px) {
+	.dropdown-wrapper {
+		width: 100%;
+		margin: 0.5rem auto;
+	}
+
+	.mobile-category-dropdown {
+		padding: 12px 12px 4px;
+		width: 100%;
+	}
+
+	.selected-text {
+		font-size: 14px;
+	}
+
+	.checkbox-text {
+		font-size: 14px;
+	}
+}
+
+@media (min-width: 768px) {
+
+	/* #categorySection and .categories display is controlled by JS */
+	.mobile-category-dropdown {
+		display: none !important;
+		/* Always hidden on tablets and desktops */
 	}
 }
 
 .playlist-row {
-    cursor: pointer;
-    padding-top: 10px;
 	display: flex;
 	align-items: center;
 	gap: 10px;
+	margin-top: 8px;
 	border-bottom: 1px solid grey;
-	padding-bottom: 9px;
+	padding-bottom: 13px;
 }
 
 .video-thumbnail {
@@ -1009,7 +1073,7 @@ span.create-plus:hover {
 	margin-right: 8px;
 	gap: 10px;
 	/* space between switch and label */
-	white-space: nowrap;/
+	white-space: nowrap;
 }
 
 .auto-play-logic input[type="checkbox"] {
@@ -1166,7 +1230,7 @@ span.auto-play-logic {
 	padding: 12px 24px;
 	border-radius: 5px;
 	display: none;
-	z-index: 9999;
+	z-index: 1000;
 	font-size: 16px;
 	opacity: 0;
 	transition: opacity 0.4s ease;
@@ -1343,7 +1407,6 @@ span.auto-play-logic {
 .dialog-buttons {
 	display: flex;
 	justify-content: flex-end;
-	;
 	margin-top: 20px;
 }
 
@@ -1391,21 +1454,22 @@ span.auto-play-logic {
 	box-sizing: border-box;
 	transition: all 0.3s ease;
 }
-.minus{
-   width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    border: 2px solid #003366;
-    background-color: #003366;
-    font-size: 18px;
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    box-sizing: border-box;
-    transition: all 0.3s ease;
+
+.minus {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	border: 2px solid #003366;
+	background-color: #003366;
+	font-size: 18px;
+	color: white;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	box-sizing: border-box;
+	transition: all 0.3s ease;
 }
 
 /*----change-order-----css-----end-------------------------*/
@@ -1432,114 +1496,252 @@ span.auto-play-logic {
 }
 
 @media (min-width: 768px) {
-    .change-content {
-        width: 50%; /* Adjust width for tablet-sized screens */
-        max-width: 400px; /* Slightly smaller max-width for better fit */
-    }
+	.change-content {
+		width: 50%;
+		/* Adjust width for tablet-sized screens */
+		max-width: 400px;
+		/* Slightly smaller max-width for better fit */
+	}
 }
 
 /* Larger tablets and iPads in landscape */
 @media (min-width: 1024px) {
-    .change-content {
-        width: 40%; /* Further adjust for larger screens */
-        max-width: 450px;
-    }
+	.change-content {
+		width: 40%;
+		/* Further adjust for larger screens */
+		max-width: 450px;
+	}
 }
 
 /* Desktops or very large tablets */
 @media (min-width: 1200px) {
-    .change-content {
-        width: 26%; /* Original width for larger screens */
-        max-width: 450px;
-    }
+	.change-content {
+		width: 26%;
+		/* Original width for larger screens */
+		max-width: 450px;
+	}
 }
+
 @media (max-width: 912px) {
-  .main-playlist-container {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 1rem;
-    padding: 1rem;
-    flex-wrap: wrap;
-    position: relative; /* Needed for absolute positioning inside */
-  }
+	.main-playlist-container {
+		display: flex;
+		flex-direction: column-reverse;
+		gap: 1rem;
+		padding: 1rem;
+		flex-wrap: wrap;
+		position: relative;
+		/* Needed for absolute positioning inside */
+	}
 
-  /* Breadcrumb positioned over video/image */
-  .main-playlist-container .breadcrumb-nav {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 10;
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 5px 10px;
-    border-radius: 4px;
-  }
-}
-/*--change-order-media-query----end ---------*/
-.playlist-row.active-row {
-  background-color: #d0eaff; /* light blue or any color you prefer */
+	/* Breadcrumb positioned over video/image */
+	.main-playlist-container .breadcrumb-nav {
+		position: absolute;
+		top: 10px;
+		left: 10px;
+		z-index: 10;
+		background-color: rgba(255, 255, 255, 0.8);
+		padding: 5px 10px;
+		border-radius: 4px;
+	}
 }
 
-.playlist-row:first-child {
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
-	padding-top: 10px;
-}
+/* Delete Video Dialog Styles */
 
 
 #deleteVideoDialog {
-
-    position: fixed;
-
-    top: 0;
-
-    left: 0;
-
-    width: 100vw;
-
-    height: 100vh;
-
-    background: rgba(0, 0, 0, 0.4); /* Optional: dim background */
-
-    display: none; /* Hidden by default, shown on trigger */
-
-    align-items: center;
-
-    justify-content: center;
-
-    z-index: 1000;
-
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.4);
+	/* Optional: dim background */
+	display: none;
+	/* Hidden by default, shown on trigger */
+	align-items: center;
+	justify-content: center;
+	z-index: 1001;
 }
 
 #deleteVideoDialog .new-playlist-content {
-
-    background: white;
-
-    padding: 24px;
-
-    border-radius: 12px;
-
-    width: 90%;
-
-    max-width: 400px;
-
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-
-    text-align: left;
-
-    box-sizing: border-box;
-
-    margin: 12rem auto;
-
+	background: white;
+	padding: 24px;
+	border-radius: 12px;
+	width: 90%;
+	max-width: 400px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+	text-align: left;
+	box-sizing: border-box;
+	margin: 12rem auto;
 }
 
 /* Optional: buttons spacing */
-
 #deleteVideoDialog .dialog-buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+}
 
-    display: flex;
+.dialog-open {
+	overflow: hidden;
+}
 
-    justify-content: flex-end;
+#videoDialog,
+#newPlaylistDialog,
+#RenameDialog,
+#deleteVideoDialog,
+#changeOrderDialog,
+#delete-modal {
+	transition: none;
+	/* Remove any transition that might delay visibility */
+}
 
-    gap: 10px;
+button {
+	cursor: pointer;
+	/* Ensure buttons are visibly clickable */
+	pointer-events: auto;
+	/* Ensure buttons are interactive */
+}
 
+#deleteVideoDialog,
+#changeOrderDialog {
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+#deleteVideoDialog[style*="display: block"],
+#changeOrderDialog[style*="display: flex"] {
+	opacity: 1;
+}
+
+.content-div {
+	display: none;
+}
+
+.content-div.active {
+	display: block;
+}
+
+.dropdown-wrapper {
+	position: relative;
+	width: 100%;
+	max-width: 300px;
+	margin-bottom: 15px;
+}
+
+.mobile-category-dropdown {
+	margin: 0.5rem 0;
+	border-radius: 9999px;
+	border: 1px solid #999;
+	padding: 15px 10px 5px;
+	position: relative;
+}
+
+.dropdown-wrapper[style*="display: block"] .mobile-category-dropdown {
+	display: block;
+}
+
+.dropdown-wrapper[style*="display: none"] .mobile-category-dropdown {
+	display: none;
+}
+
+.custom-legend {
+	position: absolute;
+	top: -10px;
+	left: 20px;
+	background: white;
+	padding: 0 8px;
+	font-size: 14px;
+	font-weight: 500;
+	color: #333;
+}
+
+.dropdown-toggle {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	cursor: pointer;
+	border-radius: 9999px;
+	padding: 8px 12px;
+	background-color: white;
+}
+
+.selected-text {
+	font-size: 14px;
+	color: #003366;
+}
+
+.dropdown-icon {
+	transition: transform 0.3s;
+}
+
+.dropdown-icon.open {
+	transform: rotate(180deg);
+}
+
+.dropdown-options {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	width: 100%;
+	margin-top: 4px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	display: none;
+	z-index: 999;
+	max-height: 200px;
+	overflow-y: auto;
+}
+
+.dropdown-options.open {
+	display: block;
+}
+
+.dropdown-option {
+	padding: 10px 12px;
+	cursor: pointer;
+	font-size: 14px;
+}
+
+.dropdown-option:hover {
+	background-color: #f1f1f1;
+}
+
+.no-categories-message {
+	padding: 10px;
+	color: #666;
+	font-size: 14px;
+	text-align: center;
+}
+.video-ellipsis-symbol {
+  font-size: 24px;
+  color: black;
+  cursor: pointer;
+  position: relative;
+   font-weight: bold;
+}
+
+.video-options-menu {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    right: 53px;
+    top: 65%;
+    z-index: 100;
+    padding: 5px 0;
+    border-radius: 4px;
+    width: 100px;
+}
+
+.menu-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.menu-item:hover {
+  background-color: #f0f0f0;
 }

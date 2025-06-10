@@ -1,5 +1,5 @@
 <sly data-sly-use.playlistModel="com.adobe.aem.guides.wknd.core.models.AbbviePlaylistModel"/>
-<div class="main">
+<div class="main" data-component-path="${resource.path}" >
     <div class="centered-container">
         <div class="headings">
             <div class="header1">${playlistModel.componentTitle}</div>
@@ -31,14 +31,28 @@
                     </sly>
                 </div>
                 <!-- Mobile view -->
-                <fieldset class="mobile-category-dropdown" id="mobileCategoryDropdown">
-                    <legend>Categories</legend>
-                    <select id="mobileCategorySelect">
-                        <sly data-sly-list.category="${playlistModel.categories}">
-                            <option value="${categoryList.index}">${category.categoryName}</option>
-                        </sly>
-                    </select>
-                </fieldset>
+                <div class="dropdown-wrapper" >
+                    <div class="mobile-category-dropdown" id="mobileCategoryDropdown">
+                        <div class="custom-legend">Categories</div>
+                        <div class="dropdown-toggle">
+                            <span class="selected-text">Select category</span>
+                            <span class="dropdown-icon">∨</span>
+                        </div>
+                        <div class="dropdown-options">
+                            <sly data-sly-list.category="${playlistModel.categories}">
+                                <div class="dropdown-option" data-value="${categoryList.index}">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" class="category-checkbox" data-value="${categoryList.index}">
+                                        <span class="checkbox-text">${category.categoryName}</span>
+                                    </label>
+                                </div>
+                            </sly>
+                            <sly data-sly-test="${!playlistModel.categories || playlistModel.categories.length == 0}">
+                                <div class="no-categories">Please author the playlist content</div>
+                            </sly>
+                        </div>
+                    </div>
+                </div>
                 <div class="right-div">
                     <div id="content1" class="content-div active"></div>
                     <div id="content2" class="content-div"></div>
@@ -92,7 +106,7 @@
     <!-- ReName Dialog -->
     <div id="RenameDialog" class="rename-dialog" style="display:none;">
         <div class="rename-content">
-            <h3 class="rename-text">Rename Playlist Name</h3>
+            <h3 class="rename-text">Rename Playlist</h3>
             <input type="text" id="renamePlaylistName" placeholder="Enter playlist name"/>
             <div class="dialog-buttons">
                 <button id="renamePlaylistCancel">Cancel</button>
@@ -104,7 +118,7 @@
     <div id="delete-model" class="model hidden">
         <div class="new-playlist-content">
             <h2 class="model-title">Delete playlist</h2>
-            <p id="delete-message">if you delete it, it will no longer be part of playlist</p>
+            <p id="delete-message">if you delete it, playlist will be deleted</p>
             <div class="dialog-buttons">
                 <button id="cancel-delete">Don't Delete</button>
                 <button id="confirm-delete">Delete</button>
@@ -131,7 +145,7 @@
             <nav id="dynamicBreadcrumb" class="breadcrumb-nav">
                 <span class="breadcrumb" id="breadcrumb-home">Home</span>
                 <span class="breadcrumb-separator">›</span>
-                <span class="breadcrumb">Default</span>
+                <span class="breadcrumb" id="breadcrumb-default">Default</span>
                 <span class="breadcrumb-separator">›</span>
                 <span class="breadcrumb current" id="breadcrumb-current">Current</span>
             </nav>
@@ -146,7 +160,7 @@
                             <div class="menu-item" data-action="changeOrder">Change Order</div>
                         </div>
                     </div>
-                    <span class="total-count">6 items | 6:31:23</span>
+                    <span class="total-count">0 items | 6:31:23</span>
                 </div>
             </div>
             <div class="auto-div"><span class="video-count">current </span>
@@ -181,7 +195,7 @@
         <div class="change-content">
             <h3 class="change-text">Change order</h3>
             <div class="change-list">
-                js code to render here
+                <!-- js will render -->
             </div>
             <div class="dialog-buttons">
                 <button id="changePlaylistCancel">Cancel</button>

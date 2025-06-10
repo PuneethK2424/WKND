@@ -17,7 +17,7 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 
 @Component(service = Servlet.class)
-@SlingServletResourceTypes(resourceTypes ="sling/servlet/default", selectors = "delete-video", extensions = "json", methods = HttpConstants.METHOD_POST)
+@SlingServletResourceTypes(resourceTypes ="wknd/components/abbvie-playlist", selectors = "deleteVideo", extensions = "json", methods = HttpConstants.METHOD_POST)
 public class DeleteVideoServlet extends SlingAllMethodsServlet {
 
     private static final Logger log = LoggerFactory.getLogger(DeleteVideoServlet.class);

@@ -13,7 +13,7 @@ import javax.servlet.Servlet;
 import java.io.IOException;
 
 @Component(service = Servlet.class)
-@SlingServletResourceTypes(resourceTypes = "sling/servlet/default", selectors = "playlists-data", extensions = "json", methods = HttpConstants.METHOD_GET)
+@SlingServletResourceTypes(resourceTypes = "wknd/components/abbvie-playlist", selectors = "playlistsData", extensions = "json", methods = HttpConstants.METHOD_GET)
 public class PlaylistsDataServlet extends SlingSafeMethodsServlet {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();

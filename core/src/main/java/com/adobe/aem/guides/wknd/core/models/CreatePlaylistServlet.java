@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component(service = Servlet.class)
-@SlingServletResourceTypes(resourceTypes ="sling/servlet/default", selectors = "create-playlist", extensions = "json", methods = HttpConstants.METHOD_POST)
+@SlingServletResourceTypes(resourceTypes ="wknd/components/abbvie-playlist", selectors = "createPlaylist", extensions = "json", methods = HttpConstants.METHOD_POST)
 public class CreatePlaylistServlet extends SlingAllMethodsServlet {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
