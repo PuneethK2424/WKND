@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
    document.querySelectorAll('.abbvie-playlist').forEach(componentRoot => {
          // component path from the data attribute
-         const componentPath = document.querySelector('.main').dataset.componentPath;
+         const componentPath = componentRoot.querySelector('.main').dataset.componentPath;
          console.log(componentPath);
 
          const tabs = componentRoot.querySelectorAll('.tab');
