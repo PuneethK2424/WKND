@@ -1,0 +1,6 @@
+{
+  "service.ranking": 0,
+  "user.mapping": [
+    "com.adobe.aem.guides.wknd.core:playlistServiceUser=wknd-service-user"
+  ]
+}

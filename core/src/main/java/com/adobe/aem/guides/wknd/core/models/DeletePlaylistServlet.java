@@ -25,8 +25,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Component(service = Servlet.class)
-@SlingServletResourceTypes(resourceTypes = "wknd/components/abbvie-playlist", selectors = "deletePlaylist", extensions = "json", methods = HttpConstants.METHOD_POST)
+@Component(service = Servlet.class,
+        property = {
+                "sling.servlet.paths=/sling/servlet/default/delete-playlist.json",
+                "sling.servlet.methods=POST"
+        })
 public class DeletePlaylistServlet extends SlingAllMethodsServlet {
 
     @Reference
@@ -116,6 +119,13 @@ public class DeletePlaylistServlet extends SlingAllMethodsServlet {
 
             userResponse.put("status", "success");
             userResponse.put("message", "Playlist " + playlistName + " deleted successfully.");
+
+            // replicate
+            // ServletUtils.forwardRequest(request,response,REPLICATE_URL);
+
+            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
+            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL,payload);
+
         } catch (Exception exception) {
             logger.error("Exception caught while deleting playlist: {}", exception.getMessage());
             userResponse.put("status", "failed");

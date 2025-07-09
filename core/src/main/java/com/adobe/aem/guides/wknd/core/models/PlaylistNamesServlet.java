@@ -12,11 +12,15 @@ import org.osgi.service.component.annotations.Reference;
 import javax.servlet.Servlet;
 import java.io.IOException;
 
-@Component(service = Servlet.class)
-@SlingServletResourceTypes(resourceTypes = "wknd/components/abbvie-playlist", selectors = "playlistNames", extensions = "json", methods = HttpConstants.METHOD_GET)
+@Component(service = Servlet.class,
+        property = {
+                "sling.servlet.paths=/sling/servlet/default/playlist-names.json",
+                "sling.servlet.methods=GET"
+        })
 public class PlaylistNamesServlet extends SlingSafeMethodsServlet {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
     @Reference
     private VideoPlaylistService videoPlaylistService;
 
