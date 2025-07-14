@@ -17,12 +17,12 @@ import java.io.IOException;
 
 @Component(service = Servlet.class,
         property = {
-                "sling.servlet.paths=/aemascs/components/abbvie-playlist/send-data-to-author.json",
+                "sling.servlet.paths=/wknd/components/abbvie-playlist/send-data-to-author.json",
                 "sling.servlet.methods=POST"
         })
 public class PublishAddVideoServlet extends SlingAllMethodsServlet {
     private static final Logger log = LoggerFactory.getLogger(PublishAddVideoServlet.class);
-    private static final String AUTHOR_URL = "https://author-p63260-e524717.adobeaemcloud.com/aemascs/components/abbvie-playlist/add-video.json";
+    private static final String AUTHOR_URL = "https://author-p63260-e524717.adobeaemcloud.com/wknd/components/abbvie-playlist/add-video.json";
 
     @Reference
     private Replicator replicator;

@@ -21,7 +21,7 @@ import java.util.List;
 
 @Component(service = Servlet.class,
         property = {
-                "sling.servlet.paths=/aemascs/components/abbvie-playlist/add-video.json",
+                "sling.servlet.paths=/wknd/components/abbvie-playlist/add-video.json",
                 "sling.servlet.methods=POST"
         })
 public class AddVideoServlet extends SlingAllMethodsServlet {

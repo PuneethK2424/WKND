@@ -418,7 +418,6 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch(err => {
                 const error = JSON.parse(err)
-                console.log(err)
                 snackBarMessage(error.message, "error");
             });
     }
@@ -427,7 +426,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return fetch('/libs/granite/csrf/token.json')
             .then(res => res.json())
             .then(csrf => {
-                return fetch('/bin/publish-playlist-names.json', {
+                return fetch('/aemascs/components/abbvie-playlist/publish-playlist-names.json', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -448,7 +447,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             })
             .catch(err => {
-                console.log(err)
+                console.log(err);
                 const error = JSON.parse(err)
                 snackBarMessage(error.message, "error");
                 return [];
@@ -459,7 +458,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('/libs/granite/csrf/token.json')
             .then(res => res.json())
             .then(csrf => {
-                fetch('/bin/send-data-to-author.json', {
+                fetch('/aemascs/components/abbvie-playlist/send-data-to-author.json', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -493,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('/libs/granite/csrf/token.json')
             .then(res => res.json())
             .then(csrf => {
-                fetch('/bin/publish-create-playlist.json', {
+                fetch('/aemascs/components/abbvie-playlist/publish-create-playlist.json', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -513,7 +512,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     })
                     .catch(err => {
                         const error = JSON.parse(err)
-                        console.log(err)
                         snackBarMessage(error.message, "error");
                     });
             });
@@ -523,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const csrfRes = await fetch('/libs/granite/csrf/token.json');
         const csrf = await csrfRes.json();
 
-        const playlistDataResponse = await fetch('/bin/publish-playlists-data.json', {
+        const playlistDataResponse = await fetch('/aemascs/components/abbvie-playlist/publish-playlists-data.json', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -546,7 +544,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('/libs/granite/csrf/token.json')
             .then(res => res.json())
             .then(csrf => {
-                fetch('/bin/publish-delete-playlist.json', {
+                fetch('/aemascs/components/abbvie-playlist/publish-delete-playlist.json', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -566,7 +564,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         return data;
                     })
                     .catch(err => {
-                        console.log(err)
                         showErrorPopup(err.message || 'Failed to delete playlist.');
                     });
             });
@@ -580,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('/libs/granite/csrf/token.json')
             .then(res => res.json())
             .then(csrf => {
-                fetch('/bin/publish-delete-video.json', {
+                fetch('/aemascs/components/abbvie-playlist/publish-delete-video.json', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -603,7 +600,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         return data;
                     })
                     .catch(err => {
-                        console.log(err)
                         showErrorPopup(err.message || 'Failed to delete video.');
                     });
             });
