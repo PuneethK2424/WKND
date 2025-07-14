@@ -1,5 +1,6 @@
 package com.adobe.aem.guides.wknd.core.models;
 
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
@@ -7,28 +8,31 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
-import org.apache.sling.api.servlets.HttpConstants;
+import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
-
-import org.apache.sling.servlets.annotations.SlingServletResourceTypes;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.servlet.Servlet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component(service = Servlet.class)
-@SlingServletResourceTypes(resourceTypes = "wknd/components/abbvie-playlist", selectors = "addVideo", extensions = "json", methods = HttpConstants.METHOD_POST)
+@Component(service = Servlet.class,
+        property = {
+                "sling.servlet.paths=/sling/servlet/default/add-video.json",
+                "sling.servlet.methods=POST"
+        })
 public class AddVideoServlet extends SlingAllMethodsServlet {
 
     private static final Logger log = LoggerFactory.getLogger(AddVideoServlet.class);
 
     @Reference
     private VideoPlaylistService videoPlaylistService;
+
+    @Reference
+    private ResourceResolverFactory resourceResolverFactory;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -65,7 +69,14 @@ public class AddVideoServlet extends SlingAllMethodsServlet {
             }
 
             // Call the service and get the full JsonNode response
-            responseJson = videoPlaylistService.saveVideo(videoUrl, playlistNames, request.getResourceResolver());
+            responseJson = videoPlaylistService.saveVideo(videoUrl, playlistNames, ResourceResolverUtils.getResourceResolver(resourceResolverFactory));
+
+            // replicate
+            // ServletUtils.forwardRequest(request,response,REPLICATE_URL);
+
+            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
+            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL,payload);
+
 
         } catch (Exception e) {
             log.error("Exception while processing the request", e);

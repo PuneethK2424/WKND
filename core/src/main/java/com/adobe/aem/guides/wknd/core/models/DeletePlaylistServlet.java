@@ -3,14 +3,11 @@ package com.adobe.aem.guides.wknd.core.models;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
-import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
-import org.apache.sling.servlets.annotations.SlingServletResourceTypes;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -25,8 +22,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Component(service = Servlet.class)
-@SlingServletResourceTypes(resourceTypes = "wknd/components/abbvie-playlist", selectors = "deletePlaylist", extensions = "json", methods = HttpConstants.METHOD_POST)
+@Component(service = Servlet.class,
+        property = {
+                "sling.servlet.paths=/sling/servlet/default/delete-playlist.json",
+                "sling.servlet.methods=POST"
+        })
 public class DeletePlaylistServlet extends SlingAllMethodsServlet {
 
     @Reference
@@ -51,7 +51,7 @@ public class DeletePlaylistServlet extends SlingAllMethodsServlet {
             logger.info("Playlist-Name: {}", playlistName);
 
             // Get resource resolver
-            ResourceResolver resourceResolver = request.getResourceResolver();
+            ResourceResolver resourceResolver = ResourceResolverUtils.getResourceResolver(resourceResolverFactory);
 
             // Checking current user
             logger.info("Current User: {}", resourceResolver.getUserID());
@@ -116,6 +116,13 @@ public class DeletePlaylistServlet extends SlingAllMethodsServlet {
 
             userResponse.put("status", "success");
             userResponse.put("message", "Playlist " + playlistName + " deleted successfully.");
+
+            // replicate
+            // ServletUtils.forwardRequest(request,response,REPLICATE_URL);
+
+            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
+            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL,payload);
+
         } catch (Exception exception) {
             logger.error("Exception caught while deleting playlist: {}", exception.getMessage());
             userResponse.put("status", "failed");

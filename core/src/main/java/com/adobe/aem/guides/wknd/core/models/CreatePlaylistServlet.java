@@ -7,10 +7,10 @@ import com.google.gson.JsonParser;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.resource.ResourceResolver;
-import org.apache.sling.api.servlets.HttpConstants;
+import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
-import org.apache.sling.servlets.annotations.SlingServletResourceTypes;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,11 +24,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Component(service = Servlet.class)
-@SlingServletResourceTypes(resourceTypes ="wknd/components/abbvie-playlist", selectors = "createPlaylist", extensions = "json", methods = HttpConstants.METHOD_POST)
+@Component(service = Servlet.class,
+        property = {
+                "sling.servlet.paths=/sling/servlet/default/create-playlist.json",
+                "sling.servlet.methods=POST"
+        })
 public class CreatePlaylistServlet extends SlingAllMethodsServlet {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    @Reference
+    private ResourceResolverFactory resourceResolverFactory;
 
     @Override
     protected void doPost(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
@@ -49,7 +55,7 @@ public class CreatePlaylistServlet extends SlingAllMethodsServlet {
             logger.info("VideoId: {}, Playlist-Name: {}", videoId, playlistName);
 
             // get resource resolver
-            ResourceResolver resourceResolver = request.getResourceResolver();
+            ResourceResolver resourceResolver = ResourceResolverUtils.getResourceResolver(resourceResolverFactory);
 
             logger.info("Current User: {}", resourceResolver.getUserID());
 
@@ -108,6 +114,13 @@ public class CreatePlaylistServlet extends SlingAllMethodsServlet {
             logger.info("Playlist Created: {}", playlistNode.getPath());
             userResponse.put("status", "success");
             userResponse.put("message", "Playlist " + playlistName + " created successfully.");
+
+            // replicate
+            // ServletUtils.forwardRequest(request,response,REPLICATE_URL);
+
+            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
+            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL,payload);
+
         } catch (Exception exception) {
             userResponse.put("status", "failed");
             userResponse.put("message", "Error while creating playlist: " + exception.getMessage());
