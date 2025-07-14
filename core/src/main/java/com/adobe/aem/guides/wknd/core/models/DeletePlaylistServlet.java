@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Component(service = Servlet.class,
         property = {
-                "sling.servlet.paths=/sling/servlet/default/delete-playlist.json",
+                "sling.servlet.paths=/aemascs/components/abbvie-playlist/delete-playlist.json",
                 "sling.servlet.methods=POST"
         })
 public class DeletePlaylistServlet extends SlingAllMethodsServlet {

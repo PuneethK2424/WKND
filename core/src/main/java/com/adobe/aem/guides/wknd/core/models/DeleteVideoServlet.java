@@ -17,7 +17,7 @@ import java.io.IOException;
 
 @Component(service = Servlet.class,
         property = {
-                "sling.servlet.paths=/sling/servlet/default/delete-video.json",
+                "sling.servlet.paths=/aemascs/components/abbvie-playlist/delete-video.json",
                 "sling.servlet.methods=POST"
         })
 public class DeleteVideoServlet extends SlingAllMethodsServlet {
