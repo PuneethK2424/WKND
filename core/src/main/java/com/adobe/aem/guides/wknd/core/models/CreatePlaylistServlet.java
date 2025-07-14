@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Component(service = Servlet.class,
         property = {
-                "sling.servlet.paths=/sling/servlet/default/create-playlist.json",
+                "sling.servlet.paths=/wknd/components/abbvie-playlist/create-playlist.json",
                 "sling.servlet.methods=POST"
         })
 public class CreatePlaylistServlet extends SlingAllMethodsServlet {
