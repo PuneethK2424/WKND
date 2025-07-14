@@ -2,19 +2,17 @@ package com.adobe.aem.guides.wknd.core.models;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.sling.api.resource.ModifiableValueMap;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Session;
 import javax.jcr.Value;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component(service = VideoPlaylistService.class)
 public class VideoPlaylistServiceImpl implements VideoPlaylistService {
@@ -31,32 +29,57 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
                 response.put("message", "Could not obtain JCR session");
                 return objectMapper.convertValue(response, JsonNode.class);
             }
-            Node parentNode = session.getNode(Constants.ROOT_FOLDER_PATH);
+
+            log.info("Got Session with: {}", session.getUserID());
+
+            Resource parentResource = resourceResolver.getResource(Constants.ROOT_FOLDER_PATH);
+
+            if (parentResource == null) {
+                log.info("Couldn't get resource: {}", Constants.ROOT_FOLDER_PATH);
+                response.put("status", "failed");
+                response.put("message", "Couldn't get resource: " + Constants.ROOT_FOLDER_PATH);
+                return null;
+            }
+
             String username = session.getUserID();
-            Node userNode = PlaylistMetadataUtils.getNode(parentNode, username);
+
+            log.info("This is username from session: {}", username);
+
+            Resource userResource = PlaylistMetadataUtils.getResource(parentResource, username);
+
             boolean atLeastOneAdded = false;
             boolean alreadyPresent = false;
+
             for (String playlistName : playlists) {
-                if (!userNode.hasNode(playlistName)) {
+                Resource playlistResource = userResource.getChild(playlistName);
+
+                if (playlistResource == null) {
                     log.warn("Playlist '{}' not found for user '{}'", playlistName, username);
                     continue;
                 }
-                Node playlistNode = userNode.getNode(playlistName);
+
+                ModifiableValueMap properties = playlistResource.adaptTo(ModifiableValueMap.class);
+                if (properties == null) {
+                    log.warn("Could not modify properties for playlist '{}'", playlistName);
+                    continue;
+                }
+
+                String[] existingUrls = properties.get("videoUrls", String[].class);
                 List<String> videoUrls = new ArrayList<>();
-                if (playlistNode.hasProperty("videoUrls")) {
-                    Value[] values = playlistNode.getProperty("videoUrls").getValues();
-                    if (values.length == 3) {
+
+                if (existingUrls != null) {
+                    if (existingUrls.length == 3) {
                         response.put("status", "failed");
                         response.put("message", "Playlist Limit Exceeded");
                         return objectMapper.convertValue(response, JsonNode.class);
                     }
-                    for (Value value : values) {
-                        videoUrls.add(value.getString());
-                    }
+                    videoUrls.addAll(Arrays.asList(existingUrls));
                 }
+
                 if (!videoUrls.contains(videoUrl)) {
                     videoUrls.add(videoUrl);
-                    playlistNode.setProperty("videoUrls", videoUrls.toArray(new String[0]));
+                    properties.put("videoUrls", videoUrls.toArray(new String[0]));
+
                     log.info("Added videoUrl '{}' to playlist '{}'", videoUrl, playlistName);
                     atLeastOneAdded = true;
                 } else {
@@ -64,6 +87,9 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
                     alreadyPresent = true;
                 }
             }
+
+            resourceResolver.commit();
+
             session.save();
             if (atLeastOneAdded) {
                 response.put("status", "success");
@@ -136,7 +162,7 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
         return objectMapper.convertValue(response, JsonNode.class);
     }
 
-    @Override
+/*    @Override
     public JsonNode playlistNames(ResourceResolver resourceResolver) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
@@ -148,6 +174,7 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
                 return objectMapper.convertValue(response, JsonNode.class);
             }
             String username = session.getUserID();
+            log.info("This is username: {}", username);
             if (!session.nodeExists(Constants.ROOT_FOLDER_PATH)) {
                 log.error("Root folder does not exist: {}", Constants.ROOT_FOLDER_PATH);
                 response.put("status", "failed");
@@ -172,7 +199,69 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
             response.put("message", "Exception: " + e.getMessage());
         }
         return objectMapper.convertValue(response, JsonNode.class);
+    }*/
+
+
+    @Override
+    public JsonNode playlistNames(ResourceResolver resourceResolver) {
+        Map<String, Object> response = new LinkedHashMap<>();
+
+        try {
+            if (resourceResolver == null) {
+                log.error("ResourceResolver is null.");
+                response.put("status", "failed");
+                response.put("message", "Unable to access content repository.");
+                return objectMapper.convertValue(response, JsonNode.class);
+            }
+
+            String username = resourceResolver.getUserID();
+            log.info("Current user: {}", username);
+
+            Resource rootResource = resourceResolver.getResource(Constants.ROOT_FOLDER_PATH);
+            if (rootResource == null) {
+                log.error("Root folder not found at path: {}", Constants.ROOT_FOLDER_PATH);
+                response.put("status", "failed");
+                response.put("message", "Root folder not found. Check configured path.");
+                return objectMapper.convertValue(response, JsonNode.class);
+            }
+
+            // Get or create user-specific resource
+            Resource userResource = PlaylistMetadataUtils.getOrCreateResource(rootResource, username, resourceResolver);
+            if (userResource == null) {
+                log.error("Failed to retrieve or create user resource under root path.");
+                response.put("status", "failed");
+                response.put("message", "Could not access or create user resource.");
+                return objectMapper.convertValue(response, JsonNode.class);
+            }
+
+            List<String> playlistNames = new ArrayList<>();
+
+            Iterable<Resource> children = userResource.getChildren();
+            for (Resource playlistResource : children) {
+                playlistNames.add(playlistResource.getName());
+                log.debug("Found playlist: {}", playlistResource.getName());
+            }
+
+            log.info("Retrieved {} playlists for user '{}'", playlistNames.size(), username);
+
+            response.put("status", "success");
+            response.put("playlistNames", playlistNames);
+
+            if (resourceResolver.hasChanges()) {
+                resourceResolver.commit();
+                log.debug("Changes committed to repository.");
+            }
+
+        }
+        catch (Exception e) {
+            log.error("Unexpected exception while retrieving playlists", e);
+            response.put("status", "failed");
+            response.put("message", "Exception: " + e.getMessage());
+        }
+
+        return objectMapper.convertValue(response, JsonNode.class);
     }
+
 
     @Override
     public JsonNode playlistsData(ResourceResolver resourceResolver) {
@@ -221,6 +310,7 @@ public class VideoPlaylistServiceImpl implements VideoPlaylistService {
             response.put("status", "success");
             response.put("message", "Playlists data retrieved successfully");
             response.put("playlistData", playlistsData);
+
             return objectMapper.convertValue(response, JsonNode.class);
         } catch (Exception ex) {
             response.put("status", "failed");
