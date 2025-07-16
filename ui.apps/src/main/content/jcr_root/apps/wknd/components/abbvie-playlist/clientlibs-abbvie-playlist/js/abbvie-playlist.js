@@ -426,7 +426,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return fetch('/libs/granite/csrf/token.json')
             .then(res => res.json())
             .then(csrf => {
-                return fetch('/aemascs/components/abbvie-playlist/publish-playlist-names.json', {
+                return fetch('/wknd/components/abbvie-playlist/publish-playlist-names.json', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -458,7 +458,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('/libs/granite/csrf/token.json')
             .then(res => res.json())
             .then(csrf => {
-                fetch('/aemascs/components/abbvie-playlist/send-data-to-author.json', {
+                fetch('/wknd/components/abbvie-playlist/send-data-to-author.json', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -492,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('/libs/granite/csrf/token.json')
             .then(res => res.json())
             .then(csrf => {
-                fetch('/aemascs/components/abbvie-playlist/publish-create-playlist.json', {
+                fetch('/wknd/components/abbvie-playlist/publish-create-playlist.json', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -521,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const csrfRes = await fetch('/libs/granite/csrf/token.json');
         const csrf = await csrfRes.json();
 
-        const playlistDataResponse = await fetch('/aemascs/components/abbvie-playlist/publish-playlists-data.json', {
+        const playlistDataResponse = await fetch('/wknd/components/abbvie-playlist/publish-playlists-data.json', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -544,7 +544,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('/libs/granite/csrf/token.json')
             .then(res => res.json())
             .then(csrf => {
-                fetch('/aemascs/components/abbvie-playlist/publish-delete-playlist.json', {
+                fetch('/wknd/components/abbvie-playlist/publish-delete-playlist.json', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -577,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('/libs/granite/csrf/token.json')
             .then(res => res.json())
             .then(csrf => {
-                fetch('/aemascs/components/abbvie-playlist/publish-delete-video.json', {
+                fetch('/wknd/components/abbvie-playlist/publish-delete-video.json', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
