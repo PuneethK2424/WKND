@@ -6,8 +6,6 @@
 
 $include "./default_filters.any"
 
-/0300 { /type "allow" /url "/wknd/components/abbvie-playlist/*" }
-
 # Allow components JSON model
 /0101 { /type "allow" /extension "json" /selectors "model" /path "/content/*" }
 
@@ -38,3 +36,5 @@ $include "./default_filters.any"
 # ContextHub
 /0200 { /type "allow" /url "*/contexthub.pagedata.json" }
 /0201 { /type "allow" /url "/home/users/*.infinity.json" }
+
+/0300 { /type "allow" /url "/wknd/components/abbvie-playlist/*" }
