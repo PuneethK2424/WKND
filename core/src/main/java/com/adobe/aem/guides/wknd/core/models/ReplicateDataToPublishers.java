@@ -20,7 +20,7 @@ import java.util.Map;
 
 @Component(service = Servlet.class,
         property = {
-                "sling.servlet.paths=/bin/replicate-data.json",
+                "sling.servlet.paths=/wknd/components/abbvie-playlist/replicate-data.json",
                 "sling.servlet.methods=POST"
         })
 public class ReplicateDataToPublishers extends SlingAllMethodsServlet {
@@ -60,3 +60,4 @@ public class ReplicateDataToPublishers extends SlingAllMethodsServlet {
         }
     }
 }
+
