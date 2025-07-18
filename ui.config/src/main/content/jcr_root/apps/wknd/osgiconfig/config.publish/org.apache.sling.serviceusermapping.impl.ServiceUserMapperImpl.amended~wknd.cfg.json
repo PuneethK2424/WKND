@@ -1,0 +1,6 @@
+{
+  "service.ranking": 0,
+  "user.mapping": [
+    "aemascs.core:playlistServiceUser=playlist-user"
+  ]
+}
