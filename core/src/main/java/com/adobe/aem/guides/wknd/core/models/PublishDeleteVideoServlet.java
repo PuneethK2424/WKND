@@ -5,6 +5,8 @@ import com.day.cq.replication.Replicator;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.sling.api.servlets.HttpConstants;
+import org.apache.sling.api.servlets.ServletResolverConstants;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -17,12 +19,14 @@ import java.io.IOException;
 
 @Component(service = Servlet.class,
         property = {
-                "sling.servlet.paths=/wknd/components/abbvie-playlist/publish-delete-video.json",
-                "sling.servlet.methods=POST"
+                ServletResolverConstants.SLING_SERVLET_PATHS + "=/bin/wknd/abbvie-playlist",
+                ServletResolverConstants.SLING_SERVLET_SELECTORS + "=publish-delete-video",
+                ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=json",
+                ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_POST
         })
 public class PublishDeleteVideoServlet extends SlingAllMethodsServlet {
     private static final Logger log = LoggerFactory.getLogger(PublishDeleteVideoServlet.class);
-    private static final String AUTHOR_URL = "https://author-p63260-e524717.adobeaemcloud.com/wknd/components/abbvie-playlist/delete-video.json";
+    private static final String AUTHOR_URL = "https://author-p63260-e524717.adobeaemcloud.com/bin/wknd/abbvie-playlist/delete-video.json";
 
     @Reference
     private Replicator replicator;

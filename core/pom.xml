@@ -144,8 +144,8 @@ Import-Package: javax.annotation;version=0.0.0,*
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-            <version>4.4</version>
+            <artifactId>commons-imaging</artifactId>
+            <version>1.0-alpha3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -332,8 +332,8 @@ Import-Package: javax.annotation;version=0.0.0,*
                 </dependency>
                 <dependency>
                     <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-collections4</artifactId>
-                    <version>4.4</version>
+                    <artifactId>commons-imaging</artifactId>
+                    <version>1.0-alpha3</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
