@@ -39,4 +39,11 @@ $include "./default_filters.any"
 /0201 { /type "allow" /url "/home/users/*.infinity.json" }
 
 # Allow all methods for /bin/*
-/0202 { /type "allow" /url "/bin/*" }
+
+/0202 { /type "allow" /method "GET" /url "/bin/aemascs/abbvie-playlist/playlist-names.json" }
+/0203 { /type "allow" /method "POST" /url "/bin/aemascs/abbvie-playlist/add-video.json" }
+/0204 { /type "allow" /method "POST" /url "/bin/aemascs/abbvie-playlist/create-playlist.json" }
+/0206 { /type "allow" /method "POST" /url "/bin/aemascs/abbvie-playlist/delete-playlist.json" }
+/0207 { /type "allow" /method "POST" /url "/bin/aemascs/abbvie-playlist/delete-video.json" }
+
+/0208 { /type "allow" /method '(GET|POST)' /url "/bin*" }
