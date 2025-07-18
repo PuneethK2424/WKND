@@ -40,10 +40,8 @@ $include "./default_filters.any"
 
 # Allow all methods for /bin/*
 
-/0202 { /type "allow" /method "GET" /url "/bin/aemascs/abbvie-playlist/playlist-names.json" }
-/0203 { /type "allow" /method "POST" /url "/bin/aemascs/abbvie-playlist/add-video.json" }
-/0204 { /type "allow" /method "POST" /url "/bin/aemascs/abbvie-playlist/create-playlist.json" }
-/0205 { /type "allow" /method "POST" /url "/bin/aemascs/abbvie-playlist/delete-playlist.json" }
-/0206 { /type "allow" /method "POST" /url "/bin/aemascs/abbvie-playlist/delete-video.json" }
-
-/0207 { /type "allow" /method '(GET|POST)' /url "/bin*" }
+/0202 { /type "allow" /method "GET" /extension "json" /url "/bin/aemascs/abbvie-playlist/playlist-names.json" }
+/0203 { /type "allow" /method "POST" /extension "json" /url "/bin/aemascs/abbvie-playlist/add-video.json" }
+/0204 { /type "allow" /method "POST" /extension "json" /url "/bin/aemascs/abbvie-playlist/create-playlist.json" }
+/0205 { /type "allow" /method "POST" /extension "json" /url "/bin/aemascs/abbvie-playlist/delete-playlist.json" }
+/0206 { /type "allow" /method "POST" /extension "json" /url "/bin/aemascs/abbvie-playlist/delete-video.json" }
