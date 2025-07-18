@@ -1,3 +1,4 @@
+/*
 package com.adobe.aem.guides.wknd.core.models;
 
 import com.day.cq.replication.ReplicationActionType;
@@ -56,3 +57,4 @@ public class PublishDeletePlaylistServlet  extends SlingAllMethodsServlet {
     }
 
 }
+*/

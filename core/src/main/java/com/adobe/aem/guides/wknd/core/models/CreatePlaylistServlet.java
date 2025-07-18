@@ -5,14 +5,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
-import org.apache.sling.api.resource.*;
-import org.apache.sling.api.servlets.HttpConstants;
-import org.apache.sling.api.servlets.ServletResolverConstants;
+import org.apache.sling.api.resource.ModifiableValueMap;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.jcr.Session;
 import javax.servlet.Servlet;
 import java.io.BufferedReader;
@@ -23,10 +25,8 @@ import java.util.stream.Collectors;
 
 @Component(service = Servlet.class,
         property = {
-                ServletResolverConstants.SLING_SERVLET_PATHS + "=/bin/wknd/abbvie-playlist",
-                ServletResolverConstants.SLING_SERVLET_SELECTORS + "=create-playlist",
-                ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=json",
-                ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_POST
+                "sling.servlet.paths=/bin/aemascs/abbvie-playlist/create-playlist.json",
+                "sling.servlet.methods=POST"
         })
 public class CreatePlaylistServlet extends SlingAllMethodsServlet {
 
@@ -127,8 +127,8 @@ public class CreatePlaylistServlet extends SlingAllMethodsServlet {
             userResponse.put("message", "Playlist " + playlistName + " created successfully.");
 
             // replicate
-            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
-            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL, payload);
+//            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
+//            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL, payload);
 
         } catch (Exception exception) {
             userResponse.put("status", "failed");

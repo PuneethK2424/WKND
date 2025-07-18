@@ -1,3 +1,4 @@
+/*
 package com.adobe.aem.guides.wknd.core.models;
 
 import com.day.cq.replication.ReplicationActionType;
@@ -55,4 +56,4 @@ public class PublishDeleteVideoServlet extends SlingAllMethodsServlet {
         }
     }
 
-}
+}*/

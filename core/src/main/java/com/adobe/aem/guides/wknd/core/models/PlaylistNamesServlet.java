@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.resource.ResourceResolverFactory;
-import org.apache.sling.api.servlets.HttpConstants;
-import org.apache.sling.api.servlets.ServletResolverConstants;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -17,10 +15,8 @@ import java.io.IOException;
 
 @Component(service = Servlet.class,
         property = {
-                ServletResolverConstants.SLING_SERVLET_PATHS + "=/bin/wknd/abbvie-playlist",
-                ServletResolverConstants.SLING_SERVLET_SELECTORS + "=playlist-names",
-                ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=json",
-                ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_GET
+                "sling.servlet.paths=/bin/aemascs/abbvie-playlist/playlist-names.json",
+                "sling.servlet.methods=GET"
         })
 public class PlaylistNamesServlet extends SlingSafeMethodsServlet {
 

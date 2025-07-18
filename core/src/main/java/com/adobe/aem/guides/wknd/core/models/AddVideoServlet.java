@@ -1,6 +1,5 @@
 package com.adobe.aem.guides.wknd.core.models;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
@@ -9,14 +8,12 @@ import com.google.gson.JsonParser;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.resource.ResourceResolverFactory;
-import org.apache.sling.api.servlets.HttpConstants;
-import org.apache.sling.api.servlets.ServletResolverConstants;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
-import org.apache.sling.servlets.annotations.SlingServletResourceTypes;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.servlet.Servlet;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,10 +21,8 @@ import java.util.List;
 
 @Component(service = Servlet.class,
         property = {
-                ServletResolverConstants.SLING_SERVLET_PATHS + "=/bin/wknd/abbvie-playlist",
-                ServletResolverConstants.SLING_SERVLET_SELECTORS + "=add-video",
-                ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=json",
-                ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_POST
+                "sling.servlet.paths=/bin/aemascs/abbvie-playlist/add-video.json",
+                "sling.servlet.methods=POST"
         })
 public class AddVideoServlet extends SlingAllMethodsServlet {
 
@@ -79,8 +74,8 @@ public class AddVideoServlet extends SlingAllMethodsServlet {
             // replicate
             // ServletUtils.forwardRequest(request,response,REPLICATE_URL);
 
-            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
-            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL,payload);
+//            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
+//            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL,payload);
 
 
         } catch (Exception e) {
