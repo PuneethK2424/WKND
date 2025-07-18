@@ -18,7 +18,7 @@ public class PlaylistStorageUtils {
 
     private static final Logger log = LoggerFactory.getLogger(PlaylistStorageUtils.class);
 
-    private static final String HOME_USER_PATH="/home/users/D/DgsNDqfgQhBzqBWSuKUf/profile";
+    private static final String HOME_USER_PATH="/home/users/G/G6b_6nvilU1Fdvuo4nst/profile";
 
     public static Resource getHCPProfileResource(ResourceResolver resourceResolver, String userId) {
         try {

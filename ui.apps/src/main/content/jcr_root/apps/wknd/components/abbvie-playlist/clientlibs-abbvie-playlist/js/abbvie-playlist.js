@@ -520,7 +520,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const csrfRes = await fetch('/libs/granite/csrf/token.json');
         const csrf = await csrfRes.json();
 
-        const playlistDataResponse = await fetch('/bin/aemascs/abbvie-playlist/publish-playlists-data.json', {
+        const playlistDataResponse = await fetch('/bin/aemascs/abbvie-playlist/playlist-names.json', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
