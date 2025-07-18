@@ -38,6 +38,5 @@ $include "./default_filters.any"
 
 /0201 { /type "allow" /url "/home/users/*.infinity.json" }
 
-# Allow servlets to be accessible
-/0202 { /type "allow" /method "POST" /extension "json" /url "/wknd/components/abbvie-playlist" }
-/0203 { /type "allow" /method "GET" /extension "json" /url "/wknd/components/abbvie-playlist" }
+# Allow all methods for /bin/*
+/0202 { /type "allow" /url "/bin/*" }

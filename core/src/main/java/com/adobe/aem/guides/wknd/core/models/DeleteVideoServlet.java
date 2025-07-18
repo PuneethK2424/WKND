@@ -17,7 +17,7 @@ import java.io.IOException;
 
 @Component(service = Servlet.class,
         property = {
-                "sling.servlet.paths=/wknd/components/abbvie-playlist/delete-video.json",
+                "sling.servlet.paths=/bin/aemascs/abbvie-playlist/delete-video.json",
                 "sling.servlet.methods=POST"
         })
 public class DeleteVideoServlet extends SlingAllMethodsServlet {
@@ -60,8 +60,8 @@ public class DeleteVideoServlet extends SlingAllMethodsServlet {
             // replicate
             // ServletUtils.forwardRequest(request,response,REPLICATE_URL);
 
-            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
-            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL,payload);
+//            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
+//            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL,payload);
 
         } catch (Exception e) {
             log.error("Error processing delete video request", e);

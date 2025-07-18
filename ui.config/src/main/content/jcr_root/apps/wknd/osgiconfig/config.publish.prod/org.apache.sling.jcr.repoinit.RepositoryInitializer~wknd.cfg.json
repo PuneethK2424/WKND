@@ -1,0 +1,5 @@
+{
+  "scripts": [
+    "create service user playlist-user\nset ACL for playlist-user\nallow jcr:all on /conf\n allow jcr:all on /home\n end"
+  ]
+}

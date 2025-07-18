@@ -3,9 +3,10 @@ package com.adobe.aem.guides.wknd.core.models;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.resource.ModifiableValueMap;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
@@ -14,19 +15,17 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jcr.Node;
 import javax.jcr.Session;
 import javax.servlet.Servlet;
 import java.io.BufferedReader;
 import java.io.IOException;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component(service = Servlet.class,
         property = {
-                "sling.servlet.paths=/wknd/components/abbvie-playlist/create-playlist.json",
+                "sling.servlet.paths=/bin/aemascs/abbvie-playlist/create-playlist.json",
                 "sling.servlet.methods=POST"
         })
 public class CreatePlaylistServlet extends SlingAllMethodsServlet {
@@ -74,6 +73,7 @@ public class CreatePlaylistServlet extends SlingAllMethodsServlet {
         }
     }
 
+
     private void createPlaylist(String playlistName, String videoId, ResourceResolver resourceResolver, Map<String, String> userResponse) {
         // Get session from resource resolver
         try {
@@ -88,38 +88,47 @@ public class CreatePlaylistServlet extends SlingAllMethodsServlet {
             // Get user ID from session
             String username = session.getUserID();
 
-            // Parent folder for all users' data
-            Node rootFolderNode = session.getNode(Constants.ROOT_FOLDER_PATH);
+            logger.info("UserName: {}", username);
 
-            logger.info("Root folder path: {}", rootFolderNode.getPath());
+            // hcp profile resource
+            Resource hcpProfileResource = PlaylistStorageUtils.getHCPProfileResource(resourceResolver, username);
 
-            // Create or get user-specific node
-            Node userSpecificNode = PlaylistMetadataUtils.getOrCreateNode(rootFolderNode, username);
-
-            // Create a new node for playlist under user-specific node
-            Node playlistNode = PlaylistMetadataUtils.createPlaylistNode(userSpecificNode, playlistName);
-
-            if (playlistNode == null) {
-                logger.error("Playlist '{}' already exists", playlistName);
+            if (hcpProfileResource == null) {
+                logger.info("HCP Profile is null. No HCP Found");
                 userResponse.put("status", "failed");
-                userResponse.put("message", "Playlist " + playlistName + " already exists.");
+                userResponse.put("message", "HCP Not Found.");
                 return;
             }
 
-            // If new playlist, add videoUrls property
+            // create playlist
+            String bucketFolderName = PlaylistStorageUtils.getBucketFolderName(playlistName);
+
+            Resource bucketFolder = PlaylistStorageUtils.getOrCreateBucketFolder(resourceResolver, hcpProfileResource, bucketFolderName);
+            logger.info("This is bucket path: {}", bucketFolder.getPath());
+
+            Resource playlist = PlaylistStorageUtils.getOrCreatePlaylist(resourceResolver, bucketFolder, playlistName);
+
+            // If new playlist, add videoUrls
+            ModifiableValueMap playlistProperties = playlist.adaptTo(ModifiableValueMap.class);
+
+            if (playlistProperties == null) {
+                logger.info("Failed to load playlist properties");
+                userResponse.put("status", "failed");
+                userResponse.put("message", "Failed to load playlist properties.");
+                return;
+            }
             String[] videosList = videoId == null ? new String[]{} : new String[]{videoId};
-            playlistNode.setProperty("videoUrls", videosList);
+            playlistProperties.put("videoUrls", videosList);
 
             session.save();
-            logger.info("Playlist Created: {}", playlistNode.getPath());
+            resourceResolver.commit();
+            logger.info("Playlist Created: {}", playlist.getPath());
             userResponse.put("status", "success");
             userResponse.put("message", "Playlist " + playlistName + " created successfully.");
 
             // replicate
-            // ServletUtils.forwardRequest(request,response,REPLICATE_URL);
-
-            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
-            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL,payload);
+//            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
+//            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL, payload);
 
         } catch (Exception exception) {
             userResponse.put("status", "failed");

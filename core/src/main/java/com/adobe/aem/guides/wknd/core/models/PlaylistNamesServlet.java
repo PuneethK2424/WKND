@@ -15,7 +15,7 @@ import java.io.IOException;
 
 @Component(service = Servlet.class,
         property = {
-                "sling.servlet.paths=/wknd/components/abbvie-playlist/playlist-names.json",
+                "sling.servlet.paths=/bin/aemascs/abbvie-playlist/playlist-names.json",
                 "sling.servlet.methods=GET"
         })
 public class PlaylistNamesServlet extends SlingSafeMethodsServlet {

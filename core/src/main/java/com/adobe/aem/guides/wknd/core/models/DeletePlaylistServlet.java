@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Component(service = Servlet.class,
         property = {
-                "sling.servlet.paths=/wknd/components/abbvie-playlist/delete-playlist.json",
+                "sling.servlet.paths=/bin/aemascs/abbvie-playlist/delete-playlist.json",
                 "sling.servlet.methods=POST"
         })
 public class DeletePlaylistServlet extends SlingAllMethodsServlet {
@@ -120,8 +120,8 @@ public class DeletePlaylistServlet extends SlingAllMethodsServlet {
             // replicate
             // ServletUtils.forwardRequest(request,response,REPLICATE_URL);
 
-            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
-            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL,payload);
+//            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
+//            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL,payload);
 
         } catch (Exception exception) {
             logger.error("Exception caught while deleting playlist: {}", exception.getMessage());

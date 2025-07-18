@@ -1,6 +1,5 @@
 package com.adobe.aem.guides.wknd.core.models;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
@@ -14,6 +13,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.servlet.Servlet;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.List;
 
 @Component(service = Servlet.class,
         property = {
-                "sling.servlet.paths=/wknd/components/abbvie-playlist/add-video.json",
+                "sling.servlet.paths=/bin/aemascs/abbvie-playlist/add-video.json",
                 "sling.servlet.methods=POST"
         })
 public class AddVideoServlet extends SlingAllMethodsServlet {
@@ -74,8 +74,8 @@ public class AddVideoServlet extends SlingAllMethodsServlet {
             // replicate
             // ServletUtils.forwardRequest(request,response,REPLICATE_URL);
 
-            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
-            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL,payload);
+//            String payload = "{\"contentpath\": \"/conf/hcp-playlists\"}";
+//            ServletUtils.replicateDataToPublish(Constants.REPLICATE_URL,payload);
 
 
         } catch (Exception e) {
